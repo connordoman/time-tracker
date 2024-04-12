@@ -10,8 +10,15 @@ export interface PunchCardInterval {
 }
 
 export interface PunchCard {
+    uuid: string;
     memo: string;
     notes: string;
     workPeriods: PunchCardInterval[];
     createdAt: number;
 }
+
+export const defaultSettings: TimesheetSettings = {
+    timezone: "America/Los_Angeles",
+    use24HourTime: true,
+    roundToSeconds: 300,
+};
