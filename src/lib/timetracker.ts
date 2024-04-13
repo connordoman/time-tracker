@@ -73,6 +73,22 @@ export default class TimeTracker {
         return undefined;
     }
 
+    longestCard() {
+        return this.punchCards.reduce((longest, card) => {
+            return card.workPeriods.length > longest.workPeriods.length ? card : longest;
+        })
+    }
+
+    longestCardLength() {
+        return this.longestCard().workPeriods.length;
+    }
+
+    longestCardTotal() {
+        return this.longestCard().workPeriods.reduce((total, period) => {
+            return total + (period.endTimeSeconds - period.startTimeSeconds);
+        }, 0);
+    }
+
     toJSON(pretty?: boolean) {
         return JSON.stringify(
             {
@@ -88,7 +104,7 @@ export default class TimeTracker {
         return this.roundTime(Date.now() / 1000);
     }
     
-    private roundTime(time: number) {
-        return Math.round(time / this.settings.roundToSeconds) * this.settings.roundToSeconds;
+    private roundTime(seconds: number) {
+        return Math.round(seconds / this.settings.roundToSeconds) * this.settings.roundToSeconds;
     }
 }

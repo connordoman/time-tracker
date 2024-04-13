@@ -1,4 +1,6 @@
 ---
+import CodeBlock from "@components/CodeBlock.astro";
+
 
 ---
 
@@ -12,11 +14,11 @@
 	</head>
 	<body>
 		<h1>Time Tracker</h1>
-		<pre id="time-tracker-test"></pre>
+		<main class="flex flex-col justify-center items-center">
+			<CodeBlock divId="time-tracker-test">...</CodeBlock>
+		</main>
 		<script>
-			import "@lib/test-timetracker";
-			
-
+			import "@lib/client/test-timetracker";
 		</script>
 	</body>
 </html>
