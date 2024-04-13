@@ -1,4 +1,6 @@
 ---
+import CodeBlock from "@components/CodeBlock.astro";
+
 
 ---
 
@@ -8,9 +10,15 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<title>Time Tracker</title>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<h1>Time Tracker</h1>
+		<main class="flex flex-col justify-center items-center">
+			<CodeBlock divId="time-tracker-test">...</CodeBlock>
+		</main>
+		<script>
+			import "@lib/client/test-timetracker";
+		</script>
 	</body>
 </html>
