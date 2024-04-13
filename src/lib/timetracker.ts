@@ -1,21 +1,25 @@
 import { v4 as uuidv4 } from "uuid";
-import type { PunchCard, TimesheetSettings } from "./time";
+import type { PunchCardData, PunchCardInterval, TimesheetSettings } from "./time";
 import { defaultSettings } from "./time";
 
 export default class TimeTracker {
     private settings: TimesheetSettings;
-    private punchCards: PunchCard[] = [];
+    private punchCards: PunchCardData[] = [];
 
     constructor(settings: TimesheetSettings = defaultSettings) {
         this.settings = settings;
     }
 
-    addPunchCard() {
+    loadPunchCards(punchCards: PunchCardData[]) {
+        this.punchCards = punchCards;
+    }
+
+    addPunchCard(memo: string = "", notes: string = "") {
         const id: string = uuidv4();
         this.punchCards.push({
             uuid: id,
-            memo: "",
-            notes: "",
+            memo,
+            notes,
             workPeriods: [],
             createdAt: this.nowRounded(),
         });
@@ -26,7 +30,7 @@ export default class TimeTracker {
         this.punchCards = this.punchCards.filter((card) => card.uuid !== id);
     }
 
-    updatePunchCard(id: string, data: Partial<PunchCard>) {
+    updatePunchCard(id: string, data: Partial<PunchCardData>) {
         const card = this.punchCards.find((card) => card.uuid === id);
         if (card) {
             Object.assign(card, data);
@@ -44,10 +48,12 @@ export default class TimeTracker {
             return false;
         }
 
-        card.workPeriods.push({
+        const nextWorkPeriod: PunchCardInterval = {
             startTimeSeconds: this.nowRounded(),
             endTimeSeconds: 0,
-        });
+        };
+        
+        card.workPeriods.push(nextWorkPeriod);
         return true;
     }
 
@@ -66,7 +72,7 @@ export default class TimeTracker {
         return true;
     }
 
-    getLastWorkPeriod(card: PunchCard | undefined) {
+    getLastWorkPeriod(card: PunchCardData | undefined) {
         if (card) {
             return card.workPeriods[card.workPeriods.length - 1];
         }
@@ -100,11 +106,36 @@ export default class TimeTracker {
         );
     }
 
+    getPunchCards() {
+        return this.punchCards;
+    }
+
+
+
     private nowRounded() {
         return this.roundTime(Date.now() / 1000);
     }
     
     private roundTime(seconds: number) {
         return Math.round(seconds / this.settings.roundToSeconds) * this.settings.roundToSeconds;
+    }
+
+    public static demoTimeTracker() {
+        const timeTracker = new TimeTracker();
+        const id1 = timeTracker.addPunchCard("Sample one", "This is a sample card.");
+        const id2 = timeTracker.addPunchCard("Sample two", "This is another sample card.");
+
+        timeTracker.punchIn(id1);
+
+        for (let i = 0; i < 4; i++) {
+            timeTracker.punchIn(id2);
+            timeTracker.punchOut(id2);
+        }
+        for (let i = 0; i < 5; i++) {
+            timeTracker.punchIn(id1);
+            timeTracker.punchOut(id1);
+        }
+
+        return timeTracker;
     }
 }

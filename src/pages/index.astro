@@ -1,5 +1,8 @@
 ---
 import CodeBlock from "@components/CodeBlock.astro";
+import Timesheet from "@components/react/Timesheet";
+import { defaultSettings } from "@lib/time";
+import defaultTimetracker from "@lib/client/defaultTimetracker.json"
 
 
 ---
@@ -14,8 +17,8 @@ import CodeBlock from "@components/CodeBlock.astro";
 	</head>
 	<body>
 		<h1>Time Tracker</h1>
-		<main class="flex flex-col justify-center items-center">
-			<CodeBlock divId="time-tracker-test">...</CodeBlock>
+		<main class="dark flex flex-col justify-center items-center">
+			<Timesheet punchCards={[]} settings={defaultSettings} client:visible />
 		</main>
 		<script>
 			import "@lib/client/test-timetracker";

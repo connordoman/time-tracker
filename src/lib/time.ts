@@ -9,7 +9,7 @@ export interface PunchCardInterval {
     endTimeSeconds: number;
 }
 
-export interface PunchCard {
+export interface PunchCardData {
     uuid: string;
     memo: string;
     notes: string;
