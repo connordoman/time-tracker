@@ -3,6 +3,13 @@ import { Code } from "@nextui-org/react";
 
 const { divId } = Astro.props;
 ---
-<Code id={divId} as="pre" color="primary" className="whitespace-pre w-11/12 max-w-terminal h-64 overflow-y-scroll" client:visible>
-        <slot/>
+
+<Code
+    id={divId}
+    as="pre"
+    color="primary"
+    className="whitespace-pre w-11/12 max-w-terminal h-64 overflow-y-scroll"
+    client:visible
+>
+    <slot />
 </Code>

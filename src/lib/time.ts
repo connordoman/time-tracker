@@ -20,5 +20,5 @@ export interface PunchCardData {
 export const defaultSettings: TimesheetSettings = {
     timezone: "America/Los_Angeles",
     use24HourTime: true,
-    roundToSeconds: 60,
+    roundToSeconds: 0,
 };

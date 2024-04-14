@@ -2,26 +2,24 @@
 import CodeBlock from "@components/CodeBlock.astro";
 import Timesheet from "@components/react/Timesheet";
 import { defaultSettings } from "@lib/time";
-import defaultTimetracker from "@lib/client/defaultTimetracker.json"
-
-
+import defaultTimetracker from "@lib/client/defaultTimetracker.json";
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Time Tracker</title>
-	</head>
-	<body>
-		<h1>Time Tracker</h1>
-		<main class="dark flex flex-col justify-center items-center">
-			<Timesheet punchCards={[]} settings={defaultSettings} client:visible />
-		</main>
-		<script>
-			import "@lib/client/test-timetracker";
-		</script>
-	</body>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <title>Time Tracker</title>
+    </head>
+    <body>
+        <h1>Time Tracker</h1>
+        <main class="dark flex flex-col justify-center items-center">
+            <Timesheet punchCards={[]} settings={defaultSettings} client:load />
+        </main>
+        <script>
+            // import "@lib/client/test-timetracker";
+        </script>
+    </body>
 </html>

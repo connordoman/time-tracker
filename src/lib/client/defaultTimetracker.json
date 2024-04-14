@@ -1,61 +1,61 @@
 {
     "settings": {
-      "timezone": "America/Los_Angeles",
-      "use24HourTime": true,
-      "roundToSeconds": 60
+        "timezone": "America/Los_Angeles",
+        "use24HourTime": true,
+        "roundToSeconds": 60
     },
     "punchCards": [
-      {
-        "uuid": "9f412cf5-c8d4-44c7-a558-7599da879522",
-        "memo": "",
-        "notes": "",
-        "workPeriods": [
-          {
-            "startTimeSeconds": 1712973420,
-            "endTimeSeconds": 1712973420
-          },
-          {
-            "startTimeSeconds": 1712973420,
-            "endTimeSeconds": 1712973420
-          },
-          {
-            "startTimeSeconds": 1712973420,
-            "endTimeSeconds": 1712973420
-          },
-          {
-            "startTimeSeconds": 1712973420,
-            "endTimeSeconds": 1712973420
-          },
-          {
-            "startTimeSeconds": 1712973420,
-            "endTimeSeconds": 1712973420
-          }
-        ],
-        "createdAt": 1712973420
-      },
-      {
-        "uuid": "f5055723-2c24-4fcf-a7aa-5beaf6d6888e",
-        "memo": "",
-        "notes": "",
-        "workPeriods": [
-          {
-            "startTimeSeconds": 1712973420,
-            "endTimeSeconds": 1712973420
-          },
-          {
-            "startTimeSeconds": 1712973420,
-            "endTimeSeconds": 1712973420
-          },
-          {
-            "startTimeSeconds": 1712973420,
-            "endTimeSeconds": 1712973420
-          },
-          {
-            "startTimeSeconds": 1712973420,
-            "endTimeSeconds": 1712973420
-          }
-        ],
-        "createdAt": 1712973420
-      }
+        {
+            "uuid": "9f412cf5-c8d4-44c7-a558-7599da879522",
+            "memo": "",
+            "notes": "",
+            "workPeriods": [
+                {
+                    "startTimeSeconds": 1712973420,
+                    "endTimeSeconds": 1712973420
+                },
+                {
+                    "startTimeSeconds": 1712973420,
+                    "endTimeSeconds": 1712973420
+                },
+                {
+                    "startTimeSeconds": 1712973420,
+                    "endTimeSeconds": 1712973420
+                },
+                {
+                    "startTimeSeconds": 1712973420,
+                    "endTimeSeconds": 1712973420
+                },
+                {
+                    "startTimeSeconds": 1712973420,
+                    "endTimeSeconds": 1712973420
+                }
+            ],
+            "createdAt": 1712973420
+        },
+        {
+            "uuid": "f5055723-2c24-4fcf-a7aa-5beaf6d6888e",
+            "memo": "",
+            "notes": "",
+            "workPeriods": [
+                {
+                    "startTimeSeconds": 1712973420,
+                    "endTimeSeconds": 1712973420
+                },
+                {
+                    "startTimeSeconds": 1712973420,
+                    "endTimeSeconds": 1712973420
+                },
+                {
+                    "startTimeSeconds": 1712973420,
+                    "endTimeSeconds": 1712973420
+                },
+                {
+                    "startTimeSeconds": 1712973420,
+                    "endTimeSeconds": 1712973420
+                }
+            ],
+            "createdAt": 1712973420
+        }
     ]
-  }
+}
