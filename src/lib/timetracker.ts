@@ -1,9 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import type {
-    PunchCardData,
-    PunchCardInterval,
-    TimesheetSettings,
-} from "./time";
+import type { PunchCardData, PunchCardInterval, TimesheetSettings } from "./time";
 import { defaultSettings } from "./time";
 
 export default class TimeTracker {
@@ -44,24 +40,31 @@ export default class TimeTracker {
     }
 
     deleteIntervalAt(uuid: string, index: number) {
+        console.log("Deleting interval ", index, " at:", uuid);
         const card = this.getPunchCards().find((card) => (card.uuid = uuid));
         if (card) {
             if (card.workPeriods.length - 1 < index) {
+                console.log("No work periods");
                 return;
             }
-            const newWorkPeriods = card.workPeriods.splice(index, 1);
+            const newWorkPeriods = card.workPeriods.toSpliced(index, 1);
+            console.log({ oldWorkPeriods: card.workPeriods, newWorkPeriods });
             card.workPeriods = newWorkPeriods;
+            return;
         }
+        console.log("Did not find card");
     }
 
     punchIn(id: string) {
-        const card = this.punchCards.find((card) => card.uuid === id);
+        const card = this.getPunchCard(id);
         if (!card) {
+            console.log("No card with id: ", id);
             return false;
         }
 
         const lastWorkPeriod = this.getLastWorkPeriod(card);
         if (lastWorkPeriod && !lastWorkPeriod.endTimeSeconds) {
+            console.log("Unable to punch in: ", lastWorkPeriod);
             return false;
         }
 
@@ -70,22 +73,31 @@ export default class TimeTracker {
             endTimeSeconds: 0,
         };
 
-        card.workPeriods.push(nextWorkPeriod);
+        const newWorkPeriods = [...card.workPeriods, nextWorkPeriod];
+
+        this.updatePunchCard(id, { workPeriods: newWorkPeriods });
+
         return true;
     }
 
     punchOut(id: string) {
-        const card = this.punchCards.find((card) => card.uuid === id);
+        const card = this.getPunchCard(id);
         if (!card) {
+            console.log("No card with id: ", id);
             return false;
         }
 
         const lastWorkPeriod = this.getLastWorkPeriod(card);
         if (!lastWorkPeriod || lastWorkPeriod.endTimeSeconds) {
+            console.log("Unable to punch out: ", lastWorkPeriod);
             return false;
         }
 
-        lastWorkPeriod.endTimeSeconds = this.nowRounded();
+        const newWorkPeriods = card.workPeriods;
+        newWorkPeriods[newWorkPeriods.length - 1].endTimeSeconds = this.nowRounded();
+
+        this.updatePunchCard(id, { workPeriods: newWorkPeriods });
+
         return true;
     }
 
@@ -98,9 +110,7 @@ export default class TimeTracker {
 
     longestCard() {
         return this.punchCards.reduce((longest, card) => {
-            return card.workPeriods.length > longest.workPeriods.length
-                ? card
-                : longest;
+            return card.workPeriods.length > longest.workPeriods.length ? card : longest;
         });
     }
 
@@ -121,12 +131,20 @@ export default class TimeTracker {
                 punchCards: this.punchCards,
             },
             undefined,
-            pretty ? 2 : undefined,
+            pretty ? 2 : undefined
         );
+    }
+
+    numWorkPeriods(uuid: string): number {
+        return this.getPunchCard(uuid)?.workPeriods.length ?? 0;
     }
 
     getPunchCards() {
         return this.punchCards;
+    }
+
+    getPunchCard(uuid: string) {
+        return this.punchCards.find((p) => p.uuid === uuid);
     }
 
     getSettings() {
@@ -134,7 +152,7 @@ export default class TimeTracker {
     }
 
     getTimeInTimezone(seconds: number) {
-        return TimeTracker.timeInTimezone(seconds, this.settings);
+        return timeInTimezone(seconds, this.settings);
     }
 
     getCreatedDate(punchCard: PunchCardData) {
@@ -143,9 +161,7 @@ export default class TimeTracker {
 
     getIntervalString(interval: PunchCardInterval) {
         const start = this.getTimeInTimezone(interval.startTimeSeconds);
-        const end = interval.endTimeSeconds
-            ? this.getTimeInTimezone(interval.endTimeSeconds)
-            : "In Progress";
+        const end = interval.endTimeSeconds ? this.getTimeInTimezone(interval.endTimeSeconds) : "In Progress";
         return `${start} - ${end}`;
     }
 
@@ -156,27 +172,15 @@ export default class TimeTracker {
     private roundTime(seconds: number) {
         if (this.settings.roundToSeconds === 0) return Math.round(seconds);
 
-        return (
-            Math.round(seconds / this.settings.roundToSeconds) *
-            this.settings.roundToSeconds
-        );
+        return Math.round(seconds / this.settings.roundToSeconds) * this.settings.roundToSeconds;
     }
 
     public static demoTimeTracker() {
         const timeTracker = new TimeTracker();
 
-        const id1 = timeTracker.addPunchCard(
-            "Sample one",
-            "This is a sample card.",
-        );
-        const id2 = timeTracker.addPunchCard(
-            "Sample two",
-            "This is another sample card.",
-        );
-        const id3 = timeTracker.addPunchCard(
-            "Sample three",
-            "This is a third sample card.",
-        );
+        const id1 = timeTracker.addPunchCard("Sample one", "This is a sample card.");
+        const id2 = timeTracker.addPunchCard("Sample two", "This is another sample card.");
+        const id3 = timeTracker.addPunchCard("Sample three", "This is a third sample card.");
 
         for (let i = 0; i < 5; i++) {
             timeTracker.punchIn(id1);
@@ -192,52 +196,57 @@ export default class TimeTracker {
             timeTracker.punchOut(id3);
         }
 
-        console.log(timeTracker.toJSON(true));
-
         return timeTracker;
     }
+}
 
-    public static timeInTimezone(
-        seconds: number,
-        settings: TimesheetSettings = defaultSettings,
-    ) {
-        return new Date(seconds * 1000).toLocaleTimeString("en-US", {
-            timeZone: settings.timezone,
-            hour12: !settings.use24HourTime,
+export function timeInTimezone(seconds: number, settings: TimesheetSettings = defaultSettings) {
+    return new Date(seconds * 1000).toLocaleTimeString("en-US", {
+        timeZone: settings.timezone,
+        hour12: !settings.use24HourTime,
+    });
+}
+
+export function now(settings: TimesheetSettings = defaultSettings) {
+    const time = Date.now() / 1000;
+    if (settings.roundToSeconds === 0) return Math.round(time);
+
+    return Math.round(time / settings.roundToSeconds) * settings.roundToSeconds;
+}
+
+export function duration(interval: PunchCardInterval, settings: TimesheetSettings = defaultSettings): number {
+    const diff = interval.endTimeSeconds - interval.startTimeSeconds;
+    if (diff < 0) {
+        return now(settings) - interval.startTimeSeconds;
+    }
+    return interval.endTimeSeconds - interval.startTimeSeconds;
+}
+
+export function hhMMSS(seconds: number) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${remainingSeconds
+        .toString()
+        .padStart(2, "0")}`;
+}
+
+export function timeSinceHHMMSS(startTime: number, settings: TimesheetSettings = defaultSettings) {
+    return hhMMSS(now(settings) - startTime);
+}
+
+export function totalDuration(punchCardData: PunchCardData): number {
+    return punchCardData.workPeriods
+        .map((interval) => duration(interval))
+        .reduce((sum, duration) => {
+            return sum + duration;
         });
-    }
+}
 
-    public static now(settings: TimesheetSettings = defaultSettings) {
-        const time = Date.now() / 1000;
-        if (settings.roundToSeconds === 0) return Math.round(time);
-
-        return (
-            Math.round(time / settings.roundToSeconds) * settings.roundToSeconds
-        );
-    }
-
-    public static duration(
-        interval: PunchCardInterval,
-        settings: TimesheetSettings = defaultSettings,
-    ) {
-        const diff = interval.endTimeSeconds - interval.startTimeSeconds;
-        if (diff < 0) {
-            return this.now(settings) - interval.startTimeSeconds;
-        }
-        return interval.endTimeSeconds - interval.startTimeSeconds;
-    }
-
-    public static hhMMSS(seconds: number) {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const remainingSeconds = seconds % 60;
-        return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
-    }
-
-    public static timeSinceHHMMSS(
-        startTime: number,
-        settings: TimesheetSettings = defaultSettings,
-    ) {
-        return this.hhMMSS(TimeTracker.now(settings) - startTime);
-    }
+export function sumWorkPeriods(workPeriods: PunchCardInterval[]): number {
+    return workPeriods
+        .map((period) => duration(period))
+        .reduce((sum, duration) => {
+            return sum + duration;
+        });
 }

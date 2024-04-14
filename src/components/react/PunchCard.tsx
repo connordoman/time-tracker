@@ -19,16 +19,21 @@ import {
     Accordion,
     AccordionItem,
     Textarea,
+    Snippet,
+    useDisclosure,
 } from "@nextui-org/react";
 import { type TimesheetSettings, type PunchCardData } from "../../lib/time";
-import TimeTracker from "../../lib/timetracker";
-import { RiEditBoxLine, RiPlayFill, RiStopFill } from "react-icons/ri";
+import TimeTracker, { duration, hhMMSS, sumWorkPeriods, timeInTimezone } from "../../lib/timetracker";
+import { RiEditBoxLine, RiPlayFill, RiStopFill, RiTimer2Line } from "react-icons/ri";
 import { PiTrashLight } from "react-icons/pi";
 import { useTimer } from "src/hooks/time";
+import PunchCardNotesModal from "./PunchCardNotesModal";
+import Blockquote from "./Blockquote";
 
 interface PunchCardProps {
     settings: TimesheetSettings;
     punchCard: PunchCardData;
+    timeTracker: TimeTracker;
     onMemoUpdate?: (memo: string) => void;
     onNotesUpdate?: (notes: string) => void;
     onStart?: () => void;
@@ -39,6 +44,7 @@ interface PunchCardProps {
 export default function PunchCard({
     settings,
     punchCard,
+    timeTracker,
     onMemoUpdate,
     onNotesUpdate,
     onStart,
@@ -47,10 +53,18 @@ export default function PunchCard({
 }: PunchCardProps) {
     const [currentMemo, setCurrentMemo] = useState("");
     const [currentNotes, setCurrentNotes] = useState(punchCard.notes);
+    const [currentWorkPeriods, setCurrentWorkPeriods] = useState(punchCard.workPeriods);
+    const [currentTotal, setCurrentTotal] = useState(sumWorkPeriods(currentWorkPeriods));
 
-    const timeTracker = new TimeTracker(settings);
-
+    // const timeTracker = new TimeTracker(settings);
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const { seconds, isLoading, isPlaying, setPlaying, resetTime } = useTimer({ startTimeSeconds: 0, use24Hour: true });
+
+    useEffect(() => {
+        if (!isPlaying) {
+            setCurrentTotal(sumWorkPeriods(currentWorkPeriods));
+        }
+    }, [isPlaying]);
 
     const handleMemoUpdate = (memo: string) => {
         setCurrentMemo(memo);
@@ -78,12 +92,16 @@ export default function PunchCard({
     };
 
     const handleDelete = (id: number) => {
+        setCurrentWorkPeriods(currentWorkPeriods.toSpliced(id, 1));
+
         if (onDelete) {
             onDelete(id);
         }
     };
 
     const handleNotesUpdate = (notes: string) => {
+        setCurrentNotes(notes);
+
         if (onNotesUpdate) {
             onNotesUpdate(notes);
         }
@@ -94,21 +112,20 @@ export default function PunchCard({
             <CardHeader className="gap-2 flex-col">
                 <Input label="Memo" placeholder={punchCard.memo} value={currentMemo} onValueChange={handleMemoUpdate} />
                 <div className="w-full flex flex-row gap-2">
-                    <Accordion className="m-0 px-0" variant="splitted" isCompact>
+                    <Accordion variant="light" className="border-1 border-zinc-200 rounded-xl" isCompact>
                         <AccordionItem
                             key={`notes-${punchCard.uuid}`}
                             aria-label={`Eidt notes for ${punchCard.memo}`}
-                            title={currentNotes ? "View notes" : "No notes added"}
+                            title={currentNotes ? "View notes:" : "No notes added."}
                             className="px-0"
                             isDisabled={!currentNotes}>
-                            {currentNotes}
+                            <Blockquote>{currentNotes}</Blockquote>
                         </AccordionItem>
                     </Accordion>
-                    <Button color="primary" variant="flat">
-                        <RiEditBoxLine />
-                    </Button>
+                    <PunchCardNotesModal memo={punchCard.memo} onNotesChange={handleNotesUpdate} notes={currentNotes} />
                 </div>
             </CardHeader>
+            <Divider />
             <CardBody>
                 <Table
                     aria-label={`Work period table for ${punchCard.memo} from ${timeTracker.getCreatedDate(punchCard)}`}
@@ -128,17 +145,13 @@ export default function PunchCard({
                         </TableColumn>
                     </TableHeader>
                     <TableBody emptyContent="No work periods recorded.">
-                        {punchCard.workPeriods.map((period, index) => {
-                            console.log("period", period);
-
-                            console.log("duration", TimeTracker.duration(period));
-
-                            const last: boolean = index === punchCard.workPeriods.length - 1;
+                        {currentWorkPeriods.map((period, index) => {
+                            const last: boolean = index === currentWorkPeriods.length - 1;
 
                             return (
                                 <TableRow key={`${index}_${period.startTimeSeconds}`}>
                                     <TableCell className="text-center text-xs">
-                                        {TimeTracker.timeInTimezone(period.startTimeSeconds, settings)}
+                                        {timeInTimezone(period.startTimeSeconds, settings)}
                                     </TableCell>
                                     <TableCell className="text-center text-xs">
                                         {isPlaying && last ? (
@@ -146,7 +159,7 @@ export default function PunchCard({
                                                 &ndash;&ndash;:&ndash;&ndash;:&ndash;&ndash;
                                             </span>
                                         ) : (
-                                            TimeTracker.timeInTimezone(period.endTimeSeconds, settings)
+                                            timeInTimezone(period.endTimeSeconds, settings)
                                         )}
                                     </TableCell>
                                     <TableCell className="text-center text-xs">&mdash;</TableCell>
@@ -155,9 +168,7 @@ export default function PunchCard({
                                             variant="flat"
                                             color={isPlaying && last ? "success" : "default"}
                                             className="text-xs">
-                                            {TimeTracker.hhMMSS(
-                                                isPlaying && last ? seconds : TimeTracker.duration(period)
-                                            )}
+                                            {hhMMSS(isPlaying && last ? seconds : duration(period))}
                                         </Chip>
                                     </TableCell>
                                     <TableCell className="text-center w-min text-xs">
@@ -167,8 +178,7 @@ export default function PunchCard({
                                             variant="flat"
                                             radius="full"
                                             className="p-0 w-4 text-xs"
-                                            onClick={() => {
-                                                console.log("clicked delete for", index);
+                                            onPress={() => {
                                                 handleDelete(index);
                                             }}>
                                             <PiTrashLight />
@@ -181,25 +191,39 @@ export default function PunchCard({
                 </Table>
             </CardBody>
             <Divider />
-            <CardFooter className="gap-2">
+            <CardFooter className="gap-2 justify-between">
                 <ButtonGroup>
                     <Button
                         variant="flat"
                         color="success"
+                        size="sm"
                         isDisabled={isPlaying}
                         disabled={isPlaying}
-                        onClick={handleStart}>
+                        onPress={handleStart}>
                         <RiPlayFill />
                     </Button>
                     <Button
                         variant="flat"
                         color="primary"
+                        size="sm"
                         isDisabled={!isPlaying}
                         disabled={!isPlaying}
-                        onClick={handleStop}>
+                        onPress={handleStop}>
                         <RiStopFill />
                     </Button>
                 </ButtonGroup>
+                <span className="flex flex-row gap-2 items-center">
+                    Total:
+                    <Snippet
+                        variant="flat"
+                        color="primary"
+                        size="sm"
+                        tooltipProps={{ content: "Copy total time" }}
+                        className="pl-3 font-normal"
+                        hideSymbol>
+                        {hhMMSS(currentTotal)}
+                    </Snippet>
+                </span>
             </CardFooter>
         </Card>
     );
