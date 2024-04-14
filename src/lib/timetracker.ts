@@ -8,7 +8,7 @@ import { defaultSettings } from "./time";
 
 export default class TimeTracker {
     public static SECOND_INTERVAL: number = 1; // seconds
-    
+
     private settings: TimesheetSettings;
     private punchCards: PunchCardData[] = [];
 
@@ -40,6 +40,17 @@ export default class TimeTracker {
         const card = this.punchCards.find((card) => card.uuid === id);
         if (card) {
             Object.assign(card, data);
+        }
+    }
+
+    deleteIntervalAt(uuid: string, index: number) {
+        const card = this.getPunchCards().find((card) => (card.uuid = uuid));
+        if (card) {
+            if (card.workPeriods.length - 1 < index) {
+                return;
+            }
+            const newWorkPeriods = card.workPeriods.splice(index, 1);
+            card.workPeriods = newWorkPeriods;
         }
     }
 
@@ -201,12 +212,14 @@ export default class TimeTracker {
         if (settings.roundToSeconds === 0) return Math.round(time);
 
         return (
-            Math.round(time / settings.roundToSeconds) *
-            settings.roundToSeconds
-        );    
+            Math.round(time / settings.roundToSeconds) * settings.roundToSeconds
+        );
     }
 
-    public static duration(interval: PunchCardInterval, settings: TimesheetSettings = defaultSettings) {
+    public static duration(
+        interval: PunchCardInterval,
+        settings: TimesheetSettings = defaultSettings,
+    ) {
         const diff = interval.endTimeSeconds - interval.startTimeSeconds;
         if (diff < 0) {
             return this.now(settings) - interval.startTimeSeconds;
@@ -219,5 +232,12 @@ export default class TimeTracker {
         const minutes = Math.floor((seconds % 3600) / 60);
         const remainingSeconds = seconds % 60;
         return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+    }
+
+    public static timeSinceHHMMSS(
+        startTime: number,
+        settings: TimesheetSettings = defaultSettings,
+    ) {
+        return this.hhMMSS(TimeTracker.now(settings) - startTime);
     }
 }

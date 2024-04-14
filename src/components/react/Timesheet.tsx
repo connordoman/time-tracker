@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
     type TimesheetSettings,
     type PunchCardData,
@@ -20,7 +20,9 @@ export default function Timesheet({
     // const timeTracker = new TimeTracker(defaultTimeTracker.settings);
     // timeTracker.loadPunchCards(defaultTimeTracker.punchCards);
 
-    const timeTracker = TimeTracker.demoTimeTracker();
+    const [timeTracker, setTimeTracker] = useState(
+        TimeTracker.demoTimeTracker(),
+    );
 
     return (
         <div
@@ -37,8 +39,21 @@ export default function Timesheet({
                             key={card.uuid}
                             settings={timeTracker.getSettings()}
                             punchCard={card}
+                            onMemoUpdate={(v: string) =>
+                                timeTracker.updatePunchCard(card.uuid, {
+                                    memo: v,
+                                })
+                            }
+                            onNotesUpdate={(v: string) =>
+                                timeTracker.updatePunchCard(card.uuid, {
+                                    notes: v,
+                                })
+                            }
                             onStart={() => timeTracker.punchIn(card.uuid)}
                             onStop={() => timeTracker.punchOut(card.uuid)}
+                            onDelete={(id: number) =>
+                                timeTracker.deleteIntervalAt(card.uuid, id)
+                            }
                         />
                     );
                 })}
