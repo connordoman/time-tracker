@@ -16,6 +16,9 @@ import {
     Divider,
     Chip,
     Link,
+    Accordion,
+    AccordionItem,
+    Textarea,
 } from "@nextui-org/react";
 import { type TimesheetSettings, type PunchCardData } from "../../lib/time";
 import TimeTracker from "../../lib/timetracker";
@@ -43,7 +46,7 @@ export default function PunchCard({
     onDelete,
 }: PunchCardProps) {
     const [currentMemo, setCurrentMemo] = useState("");
-    const [currentNotes, setCurrentNoes] = useState("");
+    const [currentNotes, setCurrentNotes] = useState(punchCard.notes);
 
     const timeTracker = new TimeTracker(settings);
 
@@ -88,8 +91,23 @@ export default function PunchCard({
 
     return (
         <Card className="w-full">
-            <CardHeader>
+            <CardHeader className="gap-2 flex-col">
                 <Input label="Memo" placeholder={punchCard.memo} value={currentMemo} onValueChange={handleMemoUpdate} />
+                <div className="w-full flex flex-row gap-2">
+                    <Accordion className="m-0 px-0" variant="splitted" isCompact>
+                        <AccordionItem
+                            key={`notes-${punchCard.uuid}`}
+                            aria-label={`Eidt notes for ${punchCard.memo}`}
+                            title={currentNotes ? "View notes" : "No notes added"}
+                            className="px-0"
+                            isDisabled={!currentNotes}>
+                            {currentNotes}
+                        </AccordionItem>
+                    </Accordion>
+                    <Button color="primary" variant="flat">
+                        <RiEditBoxLine />
+                    </Button>
+                </div>
             </CardHeader>
             <CardBody>
                 <Table
@@ -182,10 +200,6 @@ export default function PunchCard({
                         <RiStopFill />
                     </Button>
                 </ButtonGroup>
-                <Link>
-                    Edit notes&nbsp;
-                    <RiEditBoxLine />
-                </Link>
             </CardFooter>
         </Card>
     );
