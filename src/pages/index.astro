@@ -17,15 +17,25 @@ import defaultTimetracker from "@lib/client/defaultTimetracker.json";
             let isDarkMode = true;
 
             if (typeof window !== 'undefined') {
-                console.log("window not defined");
-                isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (isDarkMode) {
-                    document.body.classList.remove("light");
-                    document.body.classList.add("dark");
-                } else {
-                    document.body.classList.remove("dark");
-                    document.body.classList.add("light");
-                }
+                const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+                let isDarkMode = darkModeMediaQuery.matches;
+
+                const switchTheme = (e) => {
+                    isDarkMode = e.matches;
+                    if (isDarkMode) {
+                        document.documentElement.classList.remove("light");
+                        document.documentElement.classList.add("dark");
+                    } else {
+                        document.documentElement.classList.remove("dark");
+                        document.documentElement.classList.add("light");
+                    }
+                };
+
+                // Initial theme switch
+                switchTheme(darkModeMediaQuery);
+
+                // Listen for changes
+                darkModeMediaQuery.addEventListener('change', switchTheme);
             }
         </script>
     </head>

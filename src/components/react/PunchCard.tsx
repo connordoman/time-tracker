@@ -130,7 +130,7 @@ export default function PunchCard({ cardIndex, timeTracker, cardId, onPunchDelet
                     labelPlacement="outside"
                     startContent={
                         <div className="pointer-events-none flex items-center">
-                            <span className="text-default-400 text-small">Memo:</span>
+                            <span className="text-default-400 text-base">Memo:</span>
                         </div>
                     }
                     value={currentMemo}
