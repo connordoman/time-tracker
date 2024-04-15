@@ -38,9 +38,12 @@ export default function Timesheet({}: TimesheetProps) {
             <main className="flex flex-col gap-4">
                 <TimesheetActionButtons
                     onAdd={() => {
-                        const newTimeTracker = currentTimeTracker;
-                        newTimeTracker.addPunchCard("");
-                        setCurrentTimeTracker(newTimeTracker);
+                        setCurrentTimeTracker((prev) => {
+                            const newTimeTracker = new TimeTracker(prev.settings);
+                            newTimeTracker.loadPunchCards(prev.punchCards);
+                            newTimeTracker.addPunchCard("");
+                            return newTimeTracker;
+                        });
                     }}
                     onShare={() => {}}
                     onSave={() => {
@@ -51,10 +54,25 @@ export default function Timesheet({}: TimesheetProps) {
                     }}
                 />
                 {isLoading ? (
-                    <CircularProgress aria-label="Loading..." />
+                    <CircularProgress className="mx-auto" aria-label="Loading..." />
                 ) : (
-                    currentTimeTracker.punchCards.map((card) => {
-                        return <PunchCard key={card.uuid} cardId={card.uuid} timeTracker={currentTimeTracker} />;
+                    currentTimeTracker.getPunchCards().map((card, index) => {
+                        return (
+                            <PunchCard
+                                key={card.uuid}
+                                cardIndex={index}
+                                cardId={card.uuid}
+                                timeTracker={currentTimeTracker}
+                                onPunchDelete={(cardId) => {
+                                    setCurrentTimeTracker((prev) => {
+                                        const timeTracker = new TimeTracker(prev.settings);
+                                        timeTracker.loadPunchCards(prev.punchCards);
+                                        timeTracker.deletePunchCard(cardId);
+                                        return timeTracker;
+                                    });
+                                }}
+                            />
+                        );
                     })
                 )}
             </main>

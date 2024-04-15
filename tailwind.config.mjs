@@ -10,7 +10,7 @@ export default {
         extend: {
             spacing: {
                 terminal: "80ch",
-                "terminal-align": "calc((100vw - 80ch) / 2)",
+                "terminal-align": "clamp(1rem, calc((100vw - 80ch) / 2), 50vw)",
             },
         },
     },

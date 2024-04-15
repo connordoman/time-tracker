@@ -20,6 +20,7 @@ import { useTimer } from "src/hooks/time";
 import PunchCardNotesModal from "./PunchCardNotesModal";
 import Blockquote from "./Blockquote";
 import PunchCardTimetable from "./PunchCardTimetable";
+import { FaTimes } from "react-icons/fa";
 
 export const prerender = false;
 
@@ -32,11 +33,13 @@ const itemClasses = {
 };
 
 interface PunchCardProps {
+    cardIndex: number;
     timeTracker: TimeTracker;
     cardId: string;
+    onPunchDelete?: (cardId: string) => void;
 }
 
-export default function PunchCard({ timeTracker, cardId }: PunchCardProps) {
+export default function PunchCard({ cardIndex, timeTracker, cardId, onPunchDelete }: PunchCardProps) {
     const [punchCard, setPunchCard] = useState(timeTracker.getPunchCard(cardId));
     const [workPeriods, setWorkPeriods] = useState(punchCard?.workPeriods ?? []);
     const [currentMemo, setMemo] = useState(punchCard?.memo ?? "");
@@ -82,11 +85,15 @@ export default function PunchCard({ timeTracker, cardId }: PunchCardProps) {
         setWorkPeriods(timeTracker.getWorkPeriods(cardId));
     };
 
-    const handleDelete = (id: number) => {
+    const handleDeleteWorkPeriod = (id: number) => {
         const newWorkPeriods = workPeriods.toSpliced(id, 1);
         timeTracker.updatePunchCard(cardId, { workPeriods: newWorkPeriods });
 
         setWorkPeriods(newWorkPeriods);
+    };
+
+    const handleDeletePunch = () => {
+        if (onPunchDelete) onPunchDelete(cardId);
     };
 
     const truncatedNotes = currentNotes.slice(0, 32);
@@ -96,6 +103,16 @@ export default function PunchCard({ timeTracker, cardId }: PunchCardProps) {
     return (
         <Card className="w-full">
             <CardHeader className="gap-2 flex-col">
+                <span className="w-full flex flex-row justify-between">
+                    <h3 className="text-left text-xl font-semibold">
+                        {cardIndex + 1}.&nbsp;{punchCard?.memo ? punchCard.memo : null}
+                    </h3>
+                    <Tooltip content="Delete punch" color="danger">
+                        <Button color="danger" variant="flat" size="sm" className="min-w-8" onPress={handleDeletePunch}>
+                            <FaTimes />
+                        </Button>
+                    </Tooltip>
+                </span>
                 <Input
                     aria-label="Memo"
                     placeholder={currentMemo}
@@ -143,7 +160,7 @@ export default function PunchCard({ timeTracker, cardId }: PunchCardProps) {
                     seconds={seconds}
                     handleDelete={(i) => {
                         console.log("Handling delete for " + i);
-                        handleDelete(i);
+                        handleDeleteWorkPeriod(i);
                     }}
                 />
             </CardBody>
