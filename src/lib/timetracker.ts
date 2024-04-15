@@ -6,10 +6,11 @@ export default class TimeTracker implements Timesheet {
     public static SECOND_INTERVAL: number = 1; // seconds
 
     private _settings: TimesheetSettings;
-    private _punchCards: PunchCardData[] = [];
+    private _punchCards: PunchCardData[];
 
     constructor(settings: TimesheetSettings = defaultSettings) {
         this._settings = settings;
+        this._punchCards = [];
     }
 
     loadPunchCards(punchCards: PunchCardData[]) {
@@ -256,7 +257,7 @@ export function totalDuration(punchCardData: PunchCardData): number {
         .map((interval) => duration(interval))
         .reduce((sum, duration) => {
             return sum + duration;
-        });
+        }, 0);
 }
 
 export function sumWorkPeriods(workPeriods: PunchCardInterval[]): number {
@@ -264,5 +265,49 @@ export function sumWorkPeriods(workPeriods: PunchCardInterval[]): number {
         .map((period) => duration(period))
         .reduce((sum, duration) => {
             return sum + duration;
-        });
+        }, 0);
+}
+
+export function readFromLocalStorage(key: string = "time-tracker"): TimeTracker {
+    if (typeof window !== undefined) {
+        const timesheetJSON = window.localStorage.getItem(key);
+
+        if (!timesheetJSON) {
+            return new TimeTracker();
+        }
+
+        const timesheet: Timesheet = JSON.parse(timesheetJSON);
+        const timeTracker = new TimeTracker(timesheet.settings);
+        timeTracker.loadPunchCards(timesheet.punchCards);
+
+        return timeTracker;
+    } else {
+        console.log("Window is not defined: skipping read from localStorage.");
+    }
+    return new TimeTracker();
+}
+
+export function getTimeTrackerFromLocalStorage(): TimeTracker {
+    const timesheet = readFromLocalStorage();
+    const tracker = new TimeTracker(timesheet.settings);
+    tracker.loadPunchCards(timesheet.punchCards);
+    return tracker;
+}
+
+export function saveToLocalStorage(data: string, key: string = "time-tracker"): boolean {
+    if (typeof window !== undefined) {
+        window.localStorage.setItem(key, data);
+        return true;
+    } else {
+        console.log("Window is not defined: skipping write to localStorage.");
+    }
+    return false;
+}
+
+export function saveTimesheetToLocalStorage(timesheet: Timesheet, key: string = "time-tracker") {
+    saveToLocalStorage(JSON.stringify(timesheet), key);
+}
+
+export function saveTimeTrackerToLocalStorage(timeTracker: TimeTracker, key: string = "time-tracker") {
+    saveToLocalStorage(timeTracker.toJSON(), key);
 }

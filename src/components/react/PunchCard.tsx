@@ -14,7 +14,6 @@ import {
     useDisclosure,
     Tooltip,
 } from "@nextui-org/react";
-import { type TimesheetSettings, type PunchCardData } from "../../lib/time";
 import TimeTracker, { hhMMSS, sumWorkPeriods } from "../../lib/timetracker";
 import { RiPlayFill, RiStopFill } from "react-icons/ri";
 import { useTimer } from "src/hooks/time";
@@ -23,6 +22,14 @@ import Blockquote from "./Blockquote";
 import PunchCardTimetable from "./PunchCardTimetable";
 
 export const prerender = false;
+
+const itemClasses = {
+    base: "py-0 data-[hover=true]:bg-default-100 w-full",
+    title: "font-normal text-medium",
+    trigger: "px-2 h-10 data-[hover=true]:bg-default-100 rounded-lg flex items-center",
+    indicator: "text-medium",
+    content: "text-small px-2 pt-3",
+};
 
 interface PunchCardProps {
     timeTracker: TimeTracker;
@@ -82,20 +89,42 @@ export default function PunchCard({ timeTracker, cardId }: PunchCardProps) {
         setWorkPeriods(newWorkPeriods);
     };
 
+    const truncatedNotes = currentNotes.slice(0, 32);
+    const hasShortNotes = currentNotes.length <= 32;
+    const abbreviatedNotes = currentNotes ? truncatedNotes + (hasShortNotes ? "" : "...") : "No notes added.";
+
     return (
         <Card className="w-full">
             <CardHeader className="gap-2 flex-col">
-                <Input label="Memo" placeholder={currentMemo} value={currentMemo} onValueChange={handleMemoUpdate} />
+                <Input
+                    aria-label="Memo"
+                    placeholder={currentMemo}
+                    labelPlacement="outside"
+                    startContent={
+                        <div className="pointer-events-none flex items-center">
+                            <span className="text-default-400 text-small">Memo:</span>
+                        </div>
+                    }
+                    value={currentMemo}
+                    onValueChange={handleMemoUpdate}
+                />
                 <div className="w-full flex flex-row gap-2">
                     <Accordion
-                        variant="light"
-                        className="border-1 border-zinc-200 dark:border-zinc-700 rounded-xl"
+                        variant="shadow"
+                        className="border-none rounded-xl p-0 flex flex-col gap-1 w-full"
+                        itemClasses={itemClasses}
                         isCompact>
                         <AccordionItem
                             key={`notes-${cardId}`}
-                            aria-label={`Eidt notes for ${currentMemo}`}
-                            title={currentNotes ? "View notes:" : "No notes added."}
+                            aria-label={`Edit notes for ${currentMemo}`}
+                            // title={}
                             className="px-0"
+                            startContent={
+                                <div className="pointer-events-none flex items-center gap-2 text-sm">
+                                    <span className="text-default-400 text-small">Notes:</span>
+                                    {abbreviatedNotes}
+                                </div>
+                            }
                             isDisabled={!currentNotes}>
                             <Blockquote>{currentNotes}</Blockquote>
                         </AccordionItem>

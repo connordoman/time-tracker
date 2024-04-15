@@ -37,7 +37,11 @@ function PunchCardTimetable({
     const workPeriods = timeTracker.getWorkPeriods(uuid);
 
     return (
-        <Table aria-label={`Work period table for ${memo} from ${punchCardCreatedAt}`} removeWrapper isCompact>
+        <Table
+            aria-label={`Work period table for ${memo} from ${punchCardCreatedAt}`}
+            className="min-h-[205px]"
+            removeWrapper
+            isCompact>
             <TableHeader>
                 <TableColumn className="text-center text-xs">Start Time</TableColumn>
                 <TableColumn className="text-center">End Time</TableColumn>
