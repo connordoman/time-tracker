@@ -25,29 +25,11 @@ import PunchCardTimetable from "./PunchCardTimetable";
 export const prerender = false;
 
 interface PunchCardProps {
-    settings: TimesheetSettings;
     timeTracker: TimeTracker;
     cardId: string;
-    onMemoUpdate?: (memo: string) => void;
-    onNotesUpdate?: (notes: string) => void;
-    onStart?: () => void;
-    onStop?: () => void;
-    onDelete?: (id: number) => void;
 }
 
-export default function PunchCard({
-    settings,
-    timeTracker,
-    cardId,
-    onMemoUpdate,
-    onNotesUpdate,
-    onStart,
-    onStop,
-    onDelete,
-}: PunchCardProps) {
-    // const [currentMemo, setCurrentMemo] = useState("");
-    // const [currentNotes, setCurrentNotes] = useState(punchCard.notes);
-    // const [currentWorkPeriods, setCurrentWorkPeriods] = useState(punchCard.workPeriods);
+export default function PunchCard({ timeTracker, cardId }: PunchCardProps) {
     const [punchCard, setPunchCard] = useState(timeTracker.getPunchCard(cardId));
     const [workPeriods, setWorkPeriods] = useState(punchCard?.workPeriods ?? []);
     const [memo, setMemo] = useState(punchCard?.memo ?? "");
@@ -65,29 +47,16 @@ export default function PunchCard({
 
     const handleMemoUpdate = (memo: string) => {
         timeTracker.updatePunchCard(cardId, { memo });
-
-        // setCurrentMemo(memo);
-
-        // if (onMemoUpdate) {
-        //     onMemoUpdate(memo);
-        // }
     };
 
     const handleNotesUpdate = (notes: string) => {
         timeTracker.updatePunchCard(cardId, { notes });
-        // if (onNotesUpdate) {
-        //     onNotesUpdate(notes);
-        // }
     };
 
     const handleStart = () => {
         setPlaying(true);
 
         timeTracker.punchIn(cardId);
-
-        // if (onStart) {
-        //     onStart();
-        // }
     };
 
     const handleStop = () => {
@@ -98,19 +67,13 @@ export default function PunchCard({
         timeTracker.punchOut(cardId);
 
         setWorkPeriods(timeTracker.getWorkPeriods(cardId));
-
-        // if (onStop) {
-        //     onStop();
-        // }
     };
 
     const handleDelete = (id: number) => {
-        // setCurrentWorkPeriods(currentWorkPeriods.toSpliced(id, 1));
-        timeTracker.updatePunchCard(cardId, { workPeriods: workPeriods.toSpliced(id, 1) });
+        const newWorkPeriods = workPeriods.toSpliced(id, 1);
+        timeTracker.updatePunchCard(cardId, { workPeriods: newWorkPeriods });
 
-        // if (onDelete) {
-        //     onDelete(id);
-        // }
+        setWorkPeriods(newWorkPeriods);
     };
 
     return (
@@ -140,7 +103,10 @@ export default function PunchCard({
                     timeTracker={timeTracker}
                     isPlaying={isPlaying}
                     seconds={seconds}
-                    handleDelete={(i) => handleDelete(i)}
+                    handleDelete={(i) => {
+                        console.log("Handling delete for " + i);
+                        handleDelete(i);
+                    }}
                 />
             </CardBody>
             <Divider />
@@ -176,7 +142,7 @@ export default function PunchCard({
                         color="primary"
                         size="sm"
                         tooltipProps={{ content: "Copy total time" }}
-                        className="pl-3 font-normal"
+                        className="pl-3 py-0 font-normal rounded-full"
                         hideSymbol>
                         {hhMMSS(currentTotal)}
                     </Snippet>

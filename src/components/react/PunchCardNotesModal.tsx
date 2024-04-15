@@ -9,6 +9,7 @@ import {
     useDisclosure,
     Textarea,
     type ModalProps,
+    Tooltip,
 } from "@nextui-org/react";
 import { RiEditBoxLine } from "react-icons/ri";
 
@@ -39,10 +40,12 @@ function PunchCardNotesModal({ memo, notes, onNotesChange, ...props }: PunchCard
 
     return (
         <>
-            <Button onPress={onOpen} variant="flat" color="primary">
-                <RiEditBoxLine />
-            </Button>
-            <Modal isOpen={isOpen} size="md" onOpenChange={onOpenChange} {...props}>
+            <Tooltip content="Edit notes" delay={500}>
+                <Button onPress={onOpen} variant="flat" color="primary">
+                    <RiEditBoxLine />
+                </Button>
+            </Tooltip>
+            <Modal isOpen={isOpen} size="md" onOpenChange={onOpenChange} position="center" {...props}>
                 <ModalContent>
                     {(onClose) => (
                         <>
