@@ -50,7 +50,7 @@ function PunchCardTimetable({
                 </TableColumn>
                 <TableColumn className="text-center">Duration</TableColumn>
                 <TableColumn className="text-center">
-                    <Tooltip content="Delete entry" delay={500} className="text-foreground-500">
+                    <Tooltip content="Delete entry" delay={500}>
                         <span className="mx-auto inline-flex text-base">
                             <PiTrashLight />
                         </span>

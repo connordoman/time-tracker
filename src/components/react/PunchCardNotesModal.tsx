@@ -40,7 +40,7 @@ function PunchCardNotesModal({ memo, notes, onNotesChange, ...props }: PunchCard
 
     return (
         <>
-            <Tooltip content="Edit notes" delay={500} className="text-foreground-500">
+            <Tooltip content="Edit notes" delay={500}>
                 <Button onPress={onOpen} variant="flat" color="primary">
                     <RiEditBoxLine />
                 </Button>

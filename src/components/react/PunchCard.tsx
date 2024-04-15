@@ -21,6 +21,7 @@ import PunchCardNotesModal from "./PunchCardNotesModal";
 import Blockquote from "./Blockquote";
 import PunchCardTimetable from "./PunchCardTimetable";
 import { FaTimes } from "react-icons/fa";
+import type { PunchCardData } from "@lib/time";
 
 export const prerender = false;
 
@@ -37,15 +38,16 @@ interface PunchCardProps {
     timeTracker: TimeTracker;
     cardId: string;
     onPunchDelete?: (cardId: string) => void;
+    onChange?: (cardId: string) => void;
 }
 
-export default function PunchCard({ cardIndex, timeTracker, cardId, onPunchDelete }: PunchCardProps) {
+export default function PunchCard({ cardIndex, timeTracker, cardId, onPunchDelete, onChange }: PunchCardProps) {
     const [punchCard, setPunchCard] = useState(timeTracker.getPunchCard(cardId));
     const [workPeriods, setWorkPeriods] = useState(punchCard?.workPeriods ?? []);
     const [currentMemo, setMemo] = useState(punchCard?.memo ?? "");
     const [currentNotes, setNotes] = useState(punchCard?.notes ?? "");
-
     const [currentTotal, setCurrentTotal] = useState(sumWorkPeriods(workPeriods));
+    const [initializing, setInitializing] = useState(true);
 
     const { seconds, isLoading, isPlaying, setPlaying, resetTime } = useTimer({
         startTimeSeconds: 0,
@@ -57,6 +59,15 @@ export default function PunchCard({ cardIndex, timeTracker, cardId, onPunchDelet
             setCurrentTotal(sumWorkPeriods(workPeriods));
         }
     }, [isPlaying, workPeriods]);
+
+    useEffect(() => {
+        if (initializing) {
+            setInitializing(false);
+            return;
+        }
+
+        if (onChange) onChange(cardId);
+    }, [punchCard, workPeriods, currentMemo, currentNotes, currentTotal]);
 
     const handleMemoUpdate = (memo: string) => {
         timeTracker.updatePunchCard(cardId, { memo });
@@ -96,8 +107,8 @@ export default function PunchCard({ cardIndex, timeTracker, cardId, onPunchDelet
         if (onPunchDelete) onPunchDelete(cardId);
     };
 
-    const truncatedNotes = currentNotes.slice(0, 32);
-    const hasShortNotes = currentNotes.length <= 32;
+    const truncatedNotes = currentNotes.slice(0, 24);
+    const hasShortNotes = currentNotes.length <= 24;
     const abbreviatedNotes = currentNotes ? truncatedNotes + (hasShortNotes ? "" : "...") : "No notes added.";
 
     return (
@@ -133,13 +144,12 @@ export default function PunchCard({ cardIndex, timeTracker, cardId, onPunchDelet
                         isCompact>
                         <AccordionItem
                             key={`notes-${cardId}`}
-                            aria-label={`Edit notes for ${currentMemo}`}
-                            // title={}
+                            aria-label={`View notes for ${currentMemo}`}
                             className="px-0"
                             startContent={
                                 <div className="pointer-events-none flex items-center gap-2 text-sm">
                                     <span className="text-default-400 text-small">Notes:</span>
-                                    {abbreviatedNotes}
+                                    <em>{abbreviatedNotes}</em>
                                 </div>
                             }
                             isDisabled={!currentNotes}>
@@ -196,7 +206,7 @@ export default function PunchCard({ cardIndex, timeTracker, cardId, onPunchDelet
                         variant="flat"
                         color="primary"
                         size="md"
-                        tooltipProps={{ content: "Copy total time" }}
+                        tooltipProps={{ content: "Copy total time", offset: 8 }}
                         className="pl-3 py-0 font-normal rounded-full"
                         classNames={{
                             pre: "font-sans",

@@ -15,20 +15,30 @@ interface TimesheetProps {}
 
 export default function Timesheet({}: TimesheetProps) {
     const trackerRef = useRef<TimeTracker>(new TimeTracker());
-    const { current: timeTracker } = trackerRef;
 
-    const [currentTimeTracker, setCurrentTimeTracker] = useState<TimeTracker>(timeTracker);
+    const [currentTimeTracker, setCurrentTimeTracker] = useState<TimeTracker>(trackerRef.current);
     const [isLoading, setLoading] = useState(true);
+    const [isUnsaved, setUnsaved] = useState(false);
 
     useEffect(() => {
         const savedTimeTracker = readFromLocalStorage();
+        trackerRef.current = savedTimeTracker;
         setCurrentTimeTracker(savedTimeTracker);
         setLoading(false);
     }, []);
 
-    useEffect(() => {
-        if (currentTimeTracker) trackerRef.current = currentTimeTracker;
-    }, [currentTimeTracker]);
+    const checkUnsaved = () => {
+        if (currentTimeTracker && trackerRef.current) {
+            if (currentTimeTracker.toJSON() !== trackerRef.current.toJSON()) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    const handleChange = () => {
+        setUnsaved(checkUnsaved());
+    };
 
     return (
         <div id="timesheet" className="flex flex-col gap-2 w-11/12 max-w-terminal">
@@ -48,10 +58,12 @@ export default function Timesheet({}: TimesheetProps) {
                     onShare={() => {}}
                     onSave={() => {
                         saveTimeTrackerToLocalStorage(currentTimeTracker);
+                        trackerRef.current = currentTimeTracker;
                     }}
                     onDownload={() => {
                         console.log(currentTimeTracker.toJSON(true));
                     }}
+                    unsaved={isUnsaved}
                 />
                 {isLoading ? (
                     <CircularProgress className="mx-auto" aria-label="Loading..." />
@@ -71,6 +83,7 @@ export default function Timesheet({}: TimesheetProps) {
                                         return timeTracker;
                                     });
                                 }}
+                                onChange={handleChange}
                             />
                         );
                     })
