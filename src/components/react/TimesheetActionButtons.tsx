@@ -18,7 +18,7 @@ const TouchButton = forwardRef<HTMLButtonElement, TouchButtonProps>(
                 ref={ref}
                 color={color}
                 onPress={onPress}
-                className="w-24 h-24 md:h-16 md:w-16 text-5xl md:text-2xl">
+                className="w-24 h-24 md:h-14 md:w-14 text-5xl md:text-2xl">
                 {children}
             </RoundButton>
         );

@@ -43,7 +43,7 @@ export default function Timesheet({}: TimesheetProps) {
 
     return (
         <>
-            <TimesheetNavbar />
+            <TimesheetNavbar totalSeconds={currentTimeTracker.totalSeconds} />
             <main className="flex flex-col gap-4 w-11/12 max-w-terminal py-4">
                 <TimesheetActionButtons
                     onAdd={() => {

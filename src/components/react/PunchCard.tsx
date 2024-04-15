@@ -14,7 +14,7 @@ import {
     useDisclosure,
     Tooltip,
 } from "@nextui-org/react";
-import TimeTracker, { hhMMSS, sumWorkPeriods } from "../../lib/timetracker";
+import TimeTracker, { hhMMSS, secondsToHours, sumWorkPeriods } from "../../lib/timetracker";
 import { RiPlayFill, RiStopFill } from "react-icons/ri";
 import { useTimer } from "src/hooks/time";
 import PunchCardNotesModal from "./PunchCardNotesModal";
@@ -206,11 +206,12 @@ export default function PunchCard({ cardIndex, timeTracker, cardId, onPunchDelet
                         variant="flat"
                         color="primary"
                         size="md"
-                        tooltipProps={{ content: "Copy total time", offset: 8 }}
+                        tooltipProps={{ content: "Copy as hours", offset: 8 }}
                         className="pl-3 py-0 font-normal rounded-full"
                         classNames={{
                             pre: "font-sans",
                         }}
+                        codeString={secondsToHours(timeTracker.totalSeconds).toFixed(2)}
                         hideSymbol>
                         {hhMMSS(currentTotal)}
                     </Snippet>

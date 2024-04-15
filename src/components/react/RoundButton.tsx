@@ -6,7 +6,7 @@ function RoundButton(props: ButtonProps) {
         <Button
             {...props}
             ref={props.ref}
-            color="primary"
+            color={props.color}
             variant="flat"
             className={
                 "rounded-full px-0 min-w-fit w-12 h-12 shadow-medium backdrop-blur-md backdrop-brightness-150 " +

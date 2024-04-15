@@ -182,6 +182,16 @@ export default class TimeTracker implements Timesheet {
         return this._punchCards;
     }
 
+    get totalSeconds() {
+        return this.punchCards
+            .map((card) => {
+                return totalDuration(card);
+            })
+            .reduce((acc, next) => {
+                return acc + next;
+            }, 0);
+    }
+
     private nowRounded() {
         return this.roundTime(Date.now() / 1000);
     }
@@ -310,4 +320,8 @@ export function saveTimesheetToLocalStorage(timesheet: Timesheet, key: string = 
 
 export function saveTimeTrackerToLocalStorage(timeTracker: TimeTracker, key: string = "time-tracker") {
     saveToLocalStorage(timeTracker.toJSON(), key);
+}
+
+export function secondsToHours(seconds: number): number {
+    return seconds / 3600;
 }

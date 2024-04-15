@@ -1,8 +1,6 @@
 ---
-import CodeBlock from "@components/CodeBlock.astro";
 import Timesheet from "@components/react/Timesheet";
 import { defaultSettings } from "@lib/time";
-import defaultTimetracker from "@lib/client/defaultTimetracker.json";
 
 ---
 
@@ -14,28 +12,30 @@ import defaultTimetracker from "@lib/client/defaultTimetracker.json";
         <meta name="generator" content={Astro.generator} />
         <title>Time Tracker</title>
         <script>
-            let isDarkMode = true;
-
             if (typeof window !== 'undefined') {
                 const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
                 let isDarkMode = darkModeMediaQuery.matches;
 
-                const switchTheme = (e) => {
-                    isDarkMode = e.matches;
-                    if (isDarkMode) {
+                const switchTheme = (darkMode: boolean) => {
+                    if (darkMode) {
                         document.documentElement.classList.remove("light");
                         document.documentElement.classList.add("dark");
                     } else {
                         document.documentElement.classList.remove("dark");
                         document.documentElement.classList.add("light");
                     }
+                }
+
+                const handleThemeSwitch = (e: MediaQueryListEvent) => {
+                    isDarkMode = e.matches;
+                    switchTheme(isDarkMode);
                 };
 
                 // Initial theme switch
-                switchTheme(darkModeMediaQuery);
+                switchTheme(isDarkMode);
 
                 // Listen for changes
-                darkModeMediaQuery.addEventListener('change', switchTheme);
+                darkModeMediaQuery.addEventListener('change', handleThemeSwitch);
             }
         </script>
     </head>
