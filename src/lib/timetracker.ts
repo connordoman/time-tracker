@@ -159,6 +159,10 @@ export default class TimeTracker {
         return this.getTimeInTimezone(punchCard.createdAt);
     }
 
+    getPunchCreationDate(uuid: string) {
+        return this.getTimeInTimezone(this.getPunchCard(uuid)?.createdAt ?? 0);
+    }
+
     getIntervalString(interval: PunchCardInterval) {
         const start = this.getTimeInTimezone(interval.startTimeSeconds);
         const end = interval.endTimeSeconds ? this.getTimeInTimezone(interval.endTimeSeconds) : "In Progress";

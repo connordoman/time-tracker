@@ -26,7 +26,7 @@ export default function Timesheet({ settings = defaultSettings, punchCards = [] 
                         <PunchCard
                             key={card.uuid}
                             settings={timeTracker.getSettings()}
-                            punchCard={card}
+                            cardId={card.uuid}
                             timeTracker={timeTracker}
                             onMemoUpdate={(v: string) =>
                                 timeTracker.updatePunchCard(card.uuid, {

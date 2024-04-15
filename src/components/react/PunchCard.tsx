@@ -7,26 +7,16 @@ import {
     Button,
     Input,
     ButtonGroup,
-    Table,
-    TableHeader,
-    TableColumn,
-    TableBody,
-    TableRow,
-    TableCell,
     Divider,
-    Chip,
-    Link,
     Accordion,
     AccordionItem,
-    Textarea,
     Snippet,
     useDisclosure,
     Tooltip,
 } from "@nextui-org/react";
 import { type TimesheetSettings, type PunchCardData } from "../../lib/time";
-import TimeTracker, { duration, hhMMSS, sumWorkPeriods, timeInTimezone } from "../../lib/timetracker";
-import { RiEditBoxLine, RiPlayFill, RiStopFill, RiTimer2Line } from "react-icons/ri";
-import { PiTrashLight } from "react-icons/pi";
+import TimeTracker, { hhMMSS, sumWorkPeriods } from "../../lib/timetracker";
+import { RiPlayFill, RiStopFill } from "react-icons/ri";
 import { useTimer } from "src/hooks/time";
 import PunchCardNotesModal from "./PunchCardNotesModal";
 import Blockquote from "./Blockquote";
@@ -36,8 +26,8 @@ export const prerender = false;
 
 interface PunchCardProps {
     settings: TimesheetSettings;
-    punchCard: PunchCardData;
     timeTracker: TimeTracker;
+    cardId: string;
     onMemoUpdate?: (memo: string) => void;
     onNotesUpdate?: (notes: string) => void;
     onStart?: () => void;
@@ -47,94 +37,106 @@ interface PunchCardProps {
 
 export default function PunchCard({
     settings,
-    punchCard,
     timeTracker,
+    cardId,
     onMemoUpdate,
     onNotesUpdate,
     onStart,
     onStop,
     onDelete,
 }: PunchCardProps) {
-    const [currentMemo, setCurrentMemo] = useState("");
-    const [currentNotes, setCurrentNotes] = useState(punchCard.notes);
-    const [currentWorkPeriods, setCurrentWorkPeriods] = useState(punchCard.workPeriods);
-    const [currentTotal, setCurrentTotal] = useState(sumWorkPeriods(currentWorkPeriods));
+    // const [currentMemo, setCurrentMemo] = useState("");
+    // const [currentNotes, setCurrentNotes] = useState(punchCard.notes);
+    // const [currentWorkPeriods, setCurrentWorkPeriods] = useState(punchCard.workPeriods);
+    const [punchCard, setPunchCard] = useState(timeTracker.getPunchCard(cardId));
+    const [workPeriods, setWorkPeriods] = useState(punchCard?.workPeriods ?? []);
+    const [memo, setMemo] = useState(punchCard?.memo ?? "");
+    const [notes, setNotes] = useState(punchCard?.notes ?? "");
 
-    // const timeTracker = new TimeTracker(settings);
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const [currentTotal, setCurrentTotal] = useState(sumWorkPeriods(workPeriods));
+
     const { seconds, isLoading, isPlaying, setPlaying, resetTime } = useTimer({ startTimeSeconds: 0, use24Hour: true });
 
     useEffect(() => {
         if (!isPlaying) {
-            setCurrentTotal(sumWorkPeriods(currentWorkPeriods));
+            setCurrentTotal(sumWorkPeriods(workPeriods));
         }
-    }, [isPlaying]);
+    }, [isPlaying, workPeriods]);
 
     const handleMemoUpdate = (memo: string) => {
-        setCurrentMemo(memo);
+        timeTracker.updatePunchCard(cardId, { memo });
 
-        if (onMemoUpdate) {
-            onMemoUpdate(memo);
-        }
+        // setCurrentMemo(memo);
+
+        // if (onMemoUpdate) {
+        //     onMemoUpdate(memo);
+        // }
+    };
+
+    const handleNotesUpdate = (notes: string) => {
+        timeTracker.updatePunchCard(cardId, { notes });
+        // if (onNotesUpdate) {
+        //     onNotesUpdate(notes);
+        // }
     };
 
     const handleStart = () => {
         setPlaying(true);
 
-        if (onStart) {
-            onStart();
-        }
+        timeTracker.punchIn(cardId);
+
+        // if (onStart) {
+        //     onStart();
+        // }
     };
 
     const handleStop = () => {
         setPlaying(false);
         resetTime();
+        setCurrentTotal(sumWorkPeriods(workPeriods));
 
-        if (onStop) {
-            onStop();
-        }
+        timeTracker.punchOut(cardId);
+
+        setWorkPeriods(timeTracker.getWorkPeriods(cardId));
+
+        // if (onStop) {
+        //     onStop();
+        // }
     };
 
     const handleDelete = (id: number) => {
-        setCurrentWorkPeriods(currentWorkPeriods.toSpliced(id, 1));
+        // setCurrentWorkPeriods(currentWorkPeriods.toSpliced(id, 1));
+        timeTracker.updatePunchCard(cardId, { workPeriods: workPeriods.toSpliced(id, 1) });
 
-        if (onDelete) {
-            onDelete(id);
-        }
-    };
-
-    const handleNotesUpdate = (notes: string) => {
-        setCurrentNotes(notes);
-
-        if (onNotesUpdate) {
-            onNotesUpdate(notes);
-        }
+        // if (onDelete) {
+        //     onDelete(id);
+        // }
     };
 
     return (
         <Card className="w-full">
             <CardHeader className="gap-2 flex-col">
-                <Input label="Memo" placeholder={punchCard.memo} value={currentMemo} onValueChange={handleMemoUpdate} />
+                <Input label="Memo" placeholder={memo} value={memo} onValueChange={handleMemoUpdate} />
                 <div className="w-full flex flex-row gap-2">
                     <Accordion variant="light" className="border-1 border-zinc-200 rounded-xl" isCompact>
                         <AccordionItem
-                            key={`notes-${punchCard.uuid}`}
-                            aria-label={`Eidt notes for ${punchCard.memo}`}
-                            title={currentNotes ? "View notes:" : "No notes added."}
+                            key={`notes-${cardId}`}
+                            aria-label={`Eidt notes for ${memo}`}
+                            title={notes ? "View notes:" : "No notes added."}
                             className="px-0"
-                            isDisabled={!currentNotes}>
-                            <Blockquote>{currentNotes}</Blockquote>
+                            isDisabled={!notes}>
+                            <Blockquote>{notes}</Blockquote>
                         </AccordionItem>
                     </Accordion>
-                    <PunchCardNotesModal memo={punchCard.memo} onNotesChange={handleNotesUpdate} notes={currentNotes} />
+                    <PunchCardNotesModal memo={memo} onNotesChange={handleNotesUpdate} notes={notes} />
                 </div>
             </CardHeader>
             <Divider />
             <CardBody>
                 <PunchCardTimetable
-                    uuid={punchCard.uuid}
-                    memo={punchCard.memo}
-                    punchCardCreatedAt={timeTracker.getCreatedDate(punchCard)}
+                    uuid={cardId}
+                    memo={memo}
+                    punchCardCreatedAt={timeTracker.getPunchCreationDate(cardId)}
                     timeTracker={timeTracker}
                     isPlaying={isPlaying}
                     seconds={seconds}
