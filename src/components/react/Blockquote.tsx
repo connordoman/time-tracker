@@ -1,5 +1,7 @@
 import type React from "react";
 
+export const prerender = false;
+
 interface BlockquoteProps {
     children?: string | React.ReactNode;
 }

@@ -3,6 +3,9 @@ import { type TimesheetSettings, type PunchCardData, defaultSettings } from "../
 import PunchCard from "./PunchCard";
 import TimeTracker from "../../lib/timetracker";
 import defaultTimeTracker from "../../lib/client/defaultTimetracker.json";
+import { NextUIProvider } from "@nextui-org/react";
+
+export const prerender = false;
 
 interface TimesheetProps {
     settings?: TimesheetSettings;
@@ -11,6 +14,7 @@ interface TimesheetProps {
 
 export default function Timesheet({ settings = defaultSettings, punchCards = [] }: TimesheetProps) {
     const { current: timeTracker } = useRef(TimeTracker.demoTimeTracker());
+
     return (
         <div id="timesheet" className="flex flex-col gap-2 w-11/12 max-w-terminal">
             <header>

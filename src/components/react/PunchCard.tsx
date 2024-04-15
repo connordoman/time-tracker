@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import {
     Card,
     CardHeader,
@@ -21,6 +21,7 @@ import {
     Textarea,
     Snippet,
     useDisclosure,
+    Tooltip,
 } from "@nextui-org/react";
 import { type TimesheetSettings, type PunchCardData } from "../../lib/time";
 import TimeTracker, { duration, hhMMSS, sumWorkPeriods, timeInTimezone } from "../../lib/timetracker";
@@ -29,6 +30,9 @@ import { PiTrashLight } from "react-icons/pi";
 import { useTimer } from "src/hooks/time";
 import PunchCardNotesModal from "./PunchCardNotesModal";
 import Blockquote from "./Blockquote";
+import PunchCardTimetable from "./PunchCardTimetable";
+
+export const prerender = false;
 
 interface PunchCardProps {
     settings: TimesheetSettings;
@@ -127,90 +131,41 @@ export default function PunchCard({
             </CardHeader>
             <Divider />
             <CardBody>
-                <Table
-                    aria-label={`Work period table for ${punchCard.memo} from ${timeTracker.getCreatedDate(punchCard)}`}
-                    removeWrapper
-                    isCompact>
-                    <TableHeader>
-                        <TableColumn className="text-center text-xs">Start Time</TableColumn>
-                        <TableColumn className="text-center">End Time</TableColumn>
-                        <TableColumn className="text-center">
-                            <span className="w-6 inline-block">&nbsp;</span>
-                        </TableColumn>
-                        <TableColumn className="text-center">Duration</TableColumn>
-                        <TableColumn className="text-center">
-                            <span className="mx-auto inline-flex">
-                                <PiTrashLight />
-                            </span>
-                        </TableColumn>
-                    </TableHeader>
-                    <TableBody emptyContent="No work periods recorded.">
-                        {currentWorkPeriods.map((period, index) => {
-                            const last: boolean = index === currentWorkPeriods.length - 1;
-
-                            return (
-                                <TableRow key={`${index}_${period.startTimeSeconds}`}>
-                                    <TableCell className="text-center text-xs">
-                                        {timeInTimezone(period.startTimeSeconds, settings)}
-                                    </TableCell>
-                                    <TableCell className="text-center text-xs">
-                                        {isPlaying && last ? (
-                                            <span className="mx-auto">
-                                                &ndash;&ndash;:&ndash;&ndash;:&ndash;&ndash;
-                                            </span>
-                                        ) : (
-                                            timeInTimezone(period.endTimeSeconds, settings)
-                                        )}
-                                    </TableCell>
-                                    <TableCell className="text-center text-xs">&mdash;</TableCell>
-                                    <TableCell className="text-center text-xs">
-                                        <Chip
-                                            variant="flat"
-                                            color={isPlaying && last ? "success" : "default"}
-                                            className="text-xs">
-                                            {hhMMSS(isPlaying && last ? seconds : duration(period))}
-                                        </Chip>
-                                    </TableCell>
-                                    <TableCell className="text-center w-min text-xs">
-                                        <Chip
-                                            as={Button}
-                                            color="danger"
-                                            variant="flat"
-                                            radius="full"
-                                            className="p-0 w-4 text-xs"
-                                            onPress={() => {
-                                                handleDelete(index);
-                                            }}>
-                                            <PiTrashLight />
-                                        </Chip>
-                                    </TableCell>
-                                </TableRow>
-                            );
-                        })}
-                    </TableBody>
-                </Table>
+                <PunchCardTimetable
+                    uuid={punchCard.uuid}
+                    memo={punchCard.memo}
+                    punchCardCreatedAt={timeTracker.getCreatedDate(punchCard)}
+                    timeTracker={timeTracker}
+                    isPlaying={isPlaying}
+                    seconds={seconds}
+                    handleDelete={(i) => handleDelete(i)}
+                />
             </CardBody>
             <Divider />
             <CardFooter className="gap-2 justify-between">
                 <ButtonGroup>
-                    <Button
-                        variant="flat"
-                        color="success"
-                        size="sm"
-                        isDisabled={isPlaying}
-                        disabled={isPlaying}
-                        onPress={handleStart}>
-                        <RiPlayFill />
-                    </Button>
-                    <Button
-                        variant="flat"
-                        color="primary"
-                        size="sm"
-                        isDisabled={!isPlaying}
-                        disabled={!isPlaying}
-                        onPress={handleStop}>
-                        <RiStopFill />
-                    </Button>
+                    <Tooltip content="Start recording time" delay={500}>
+                        <Button
+                            variant="flat"
+                            color="success"
+                            size="sm"
+                            isDisabled={isPlaying}
+                            disabled={isPlaying}
+                            onPress={handleStart}>
+                            <RiPlayFill />
+                        </Button>
+                    </Tooltip>
+                    <Tooltip content="Stop recording time" delay={500}>
+                        <Button
+                            variant="flat"
+                            color="primary"
+                            size="sm"
+                            isDisabled={!isPlaying}
+                            disabled={!isPlaying}
+                            onPress={handleStop}>
+                            <RiStopFill />
+                        </Button>
+                    </Tooltip>
                 </ButtonGroup>
                 <span className="flex flex-row gap-2 items-center">
                     Total:

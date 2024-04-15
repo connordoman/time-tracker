@@ -165,6 +165,10 @@ export default class TimeTracker {
         return `${start} - ${end}`;
     }
 
+    getWorkPeriods(uuid: string): PunchCardInterval[] {
+        return this.getPunchCard(uuid)?.workPeriods ?? [];
+    }
+
     private nowRounded() {
         return this.roundTime(Date.now() / 1000);
     }
