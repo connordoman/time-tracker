@@ -8,6 +8,7 @@ import TimeTracker, {
 } from "../../lib/timetracker";
 import { CircularProgress, Link } from "@nextui-org/react";
 import TimesheetActionButtons from "./TimesheetActionButtons";
+import TimesheetNavbar from "./TimesheetNavbar";
 
 export const prerender = false;
 
@@ -41,11 +42,9 @@ export default function Timesheet({}: TimesheetProps) {
     };
 
     return (
-        <div id="timesheet" className="flex flex-col gap-2 w-11/12 max-w-terminal">
-            <header className="h-16 flex flex-row items-center justify-center gap-4">
-                <h2 className="text-3xl font-bold text-center">Timesheet</h2>
-            </header>
-            <main className="flex flex-col gap-4">
+        <>
+            <TimesheetNavbar />
+            <main className="flex flex-col gap-4 w-11/12 max-w-terminal py-4">
                 <TimesheetActionButtons
                     onAdd={() => {
                         setCurrentTimeTracker((prev) => {
@@ -97,6 +96,6 @@ export default function Timesheet({}: TimesheetProps) {
                     My GitHub
                 </Link>
             </footer>
-        </div>
+        </>
     );
 }

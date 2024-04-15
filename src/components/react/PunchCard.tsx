@@ -139,7 +139,7 @@ export default function PunchCard({ cardIndex, timeTracker, cardId, onPunchDelet
                 <div className="w-full flex flex-row gap-2">
                     <Accordion
                         variant="shadow"
-                        className="border-none rounded-xl p-0 flex flex-col gap-1 w-full"
+                        className="border-none rounded-xl p-0 flex flex-col gap-1 w-full  shadow-none"
                         itemClasses={itemClasses}
                         isCompact>
                         <AccordionItem
