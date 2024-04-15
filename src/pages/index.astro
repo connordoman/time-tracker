@@ -4,7 +4,6 @@ import Timesheet from "@components/react/Timesheet";
 import { defaultSettings } from "@lib/time";
 import defaultTimetracker from "@lib/client/defaultTimetracker.json";
 
-export const prerender = false;
 ---
 
 <html lang="en">
@@ -14,10 +13,24 @@ export const prerender = false;
         <meta name="viewport" content="width=device-width" />
         <meta name="generator" content={Astro.generator} />
         <title>Time Tracker</title>
+        <script>
+            let isDarkMode = true;
+
+            if (typeof window !== 'undefined') {
+                console.log("window not defined");
+                isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (isDarkMode) {
+                    document.body.classList.remove("light");
+                    document.body.classList.add("dark");
+                } else {
+                    document.body.classList.remove("dark");
+                    document.body.classList.add("light");
+                }
+            }
+        </script>
     </head>
-    <body>
-        <h1>Time Tracker</h1>
-        <main class="light flex flex-col justify-center items-center">
+    <body class="bg-background text-foreground">
+        <main class="flex flex-col justify-center items-center  dark:text-white">
             <Timesheet punchCards={[]} settings={defaultSettings} client:load />
         </main>
     </body>
