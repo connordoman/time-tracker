@@ -9,8 +9,9 @@ export default {
     theme: {
         extend: {
             spacing: {
-                terminal: "80ch"
-            }
+                terminal: "80ch",
+                "terminal-align": "clamp(1rem, calc((100vw - 80ch) / 2), 50vw)",
+            },
         },
     },
     darkMode: "class",

@@ -1,42 +1,102 @@
-import { useRef } from "react";
-import {
-  type TimesheetSettings,
-  type PunchCardData,
-  defaultSettings,
-} from "../../lib/time";
+import { useEffect, useRef, useState } from "react";
+import { type TimesheetSettings, type PunchCardData, defaultSettings, type Timesheet } from "../../lib/time";
 import PunchCard from "./PunchCard";
-import TimeTracker from "../../lib/timetracker";
+import TimeTracker, {
+    getTimeTrackerFromLocalStorage,
+    readFromLocalStorage,
+    saveTimeTrackerToLocalStorage,
+} from "../../lib/timetracker";
+import { CircularProgress, Link } from "@nextui-org/react";
+import TimesheetActionButtons from "./TimesheetActionButtons";
 
 export const prerender = false;
 
-interface TimesheetProps {
-  settings?: TimesheetSettings;
-  punchCards?: PunchCardData[];
-}
+interface TimesheetProps {}
 
-export default function Timesheet({
-  settings = defaultSettings,
-  punchCards = [],
-}: TimesheetProps) {
-  const { current: timeTracker } = useRef(TimeTracker.demoTimeTracker());
+export default function Timesheet({}: TimesheetProps) {
+    const trackerRef = useRef<TimeTracker>(new TimeTracker());
 
-  return (
-    <div id="timesheet" className="flex flex-col gap-2 w-11/12 max-w-terminal">
-      <header>
-        <h2 className="text-3xl font-bold text-center">Timesheet</h2>
-      </header>
-      <main className="flex flex-col gap-4">
-        {timeTracker.getPunchCards().map((card) => {
-          return (
-            <PunchCard
-              key={card.uuid}
-              cardId={card.uuid}
-              timeTracker={timeTracker}
-            />
-          );
-        })}
-      </main>
-      <footer></footer>
-    </div>
-  );
+    const [currentTimeTracker, setCurrentTimeTracker] = useState<TimeTracker>(trackerRef.current);
+    const [isLoading, setLoading] = useState(true);
+    const [isUnsaved, setUnsaved] = useState(false);
+
+    useEffect(() => {
+        const savedTimeTracker = readFromLocalStorage();
+        trackerRef.current = savedTimeTracker;
+        setCurrentTimeTracker(savedTimeTracker);
+        setLoading(false);
+    }, []);
+
+    const checkUnsaved = () => {
+        if (currentTimeTracker && trackerRef.current) {
+            if (currentTimeTracker.toJSON() !== trackerRef.current.toJSON()) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    const handleChange = () => {
+        setUnsaved(checkUnsaved());
+    };
+
+    return (
+        <div id="timesheet" className="flex flex-col gap-2 w-11/12 max-w-terminal">
+            <header className="h-16 flex flex-row items-center justify-center gap-4">
+                <h2 className="text-3xl font-bold text-center">Timesheet</h2>
+            </header>
+            <main className="flex flex-col gap-4">
+                <TimesheetActionButtons
+                    onAdd={() => {
+                        setCurrentTimeTracker((prev) => {
+                            const newTimeTracker = new TimeTracker(prev.settings);
+                            newTimeTracker.loadPunchCards(prev.punchCards);
+                            newTimeTracker.addPunchCard("");
+                            return newTimeTracker;
+                        });
+                    }}
+                    onShare={() => {}}
+                    onSave={() => {
+                        saveTimeTrackerToLocalStorage(currentTimeTracker);
+                        trackerRef.current = currentTimeTracker;
+                    }}
+                    onDownload={() => {
+                        console.log(currentTimeTracker.toJSON(true));
+                    }}
+                    unsaved={isUnsaved}
+                />
+                {isLoading ? (
+                    <CircularProgress className="mx-auto" aria-label="Loading..." />
+                ) : (
+                    currentTimeTracker.getPunchCards().map((card, index) => {
+                        return (
+                            <PunchCard
+                                key={card.uuid}
+                                cardIndex={index}
+                                cardId={card.uuid}
+                                timeTracker={currentTimeTracker}
+                                onPunchDelete={(cardId) => {
+                                    setCurrentTimeTracker((prev) => {
+                                        const timeTracker = new TimeTracker(prev.settings);
+                                        timeTracker.loadPunchCards(prev.punchCards);
+                                        timeTracker.deletePunchCard(cardId);
+                                        return timeTracker;
+                                    });
+                                }}
+                                onChange={handleChange}
+                            />
+                        );
+                    })
+                )}
+            </main>
+            <footer className="h-16 flex flex-row items-center justify-start gap-4">
+                <Link href="https://connordoman.dev" showAnchorIcon isExternal>
+                    My Website
+                </Link>
+                <Link href="https://connordoman.dev" showAnchorIcon isExternal>
+                    My GitHub
+                </Link>
+            </footer>
+        </div>
+    );
 }
