@@ -140,6 +140,11 @@ export default class TimeTracker implements Timesheet {
         return this.getPunchCard(uuid)?.workPeriods.length ?? 0;
     }
 
+    pushDefaultPunchCard(): TimeTracker {
+        this.addPunchCard("", "");
+        return this;
+    }
+
     getPunchCards() {
         return this._punchCards;
     }
@@ -204,8 +209,7 @@ export default class TimeTracker implements Timesheet {
 
     public static defaultTimeTracker(settings: TimesheetSettings = defaultSettings) {
         const timeTracker = new TimeTracker(settings);
-        timeTracker.addPunchCard("Work period", "Add custom notes to remember what you were working on.");
-        return timeTracker;
+        return timeTracker.pushDefaultPunchCard();
     }
 
     public static demoTimeTracker() {

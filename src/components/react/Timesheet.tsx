@@ -6,7 +6,7 @@ import TimeTracker, {
     readFromLocalStorage,
     saveTimeTrackerToLocalStorage,
 } from "../../lib/timetracker";
-import { CircularProgress, Link } from "@nextui-org/react";
+import { CircularProgress, Kbd, Link } from "@nextui-org/react";
 import TimesheetActionButtons from "./TimesheetActionButtons";
 import TimesheetNavbar from "./TimesheetNavbar";
 
@@ -56,7 +56,7 @@ export default function Timesheet({}: TimesheetProps) {
                         setCurrentTimeTracker((prev) => {
                             const newTimeTracker = new TimeTracker(prev.settings);
                             newTimeTracker.loadPunchCards(prev.punchCards);
-                            newTimeTracker.addPunchCard("");
+                            newTimeTracker.pushDefaultPunchCard();
                             return newTimeTracker;
                         });
                     }}
@@ -84,7 +84,13 @@ export default function Timesheet({}: TimesheetProps) {
                                 timeTracker={currentTimeTracker}
                                 onPunchDelete={(cardId) => {
                                     setCurrentTimeTracker((prev) => {
+                                        // create a new time tracker
                                         const timeTracker = new TimeTracker(prev.settings);
+                                        // if there is only one card left, bail and add the default to our new one
+                                        if (prev.punchCards.length === 1) {
+                                            return timeTracker.pushDefaultPunchCard();
+                                        }
+                                        // otherwise, load the previous punch cards into the tracker and delete the right one
                                         timeTracker.loadPunchCards(prev.punchCards);
                                         timeTracker.deletePunchCard(cardId);
                                         return timeTracker;
@@ -96,13 +102,18 @@ export default function Timesheet({}: TimesheetProps) {
                     })
                 )}
             </main>
-            <footer className="w-full px-8 py-4 h-48 flex flex-row items-start justify-start gap-4">
-                <Link href="https://connordoman.dev" showAnchorIcon isExternal>
-                    My Website
-                </Link>
-                <Link href="https://connordoman.dev" showAnchorIcon isExternal>
-                    My GitHub
-                </Link>
+            <footer className="w-full px-8 py-4 h-48">
+                <div className="mx-terminal-align flex flex-row items-center gap-4">
+                    <p className="text-sm">
+                        <Kbd keys={["option"]}>&nbsp;+&nbsp;Click</Kbd> some buttons for other choices.
+                    </p>
+                    <Link href="https://connordoman.dev" showAnchorIcon isExternal>
+                        My Website
+                    </Link>
+                    <Link href="https://connordoman.dev" showAnchorIcon isExternal>
+                        My GitHub
+                    </Link>
+                </div>
             </footer>
         </>
     );

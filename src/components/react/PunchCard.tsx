@@ -22,6 +22,7 @@ import Blockquote from "./Blockquote";
 import PunchCardTimetable from "./PunchCardTimetable";
 import { FaTimes } from "react-icons/fa";
 import type { PunchCardData } from "@lib/time";
+import TimeDisplay from "./TimeDisplay";
 
 export const prerender = false;
 
@@ -202,19 +203,15 @@ export default function PunchCard({ cardIndex, timeTracker, cardId, onPunchDelet
                 </ButtonGroup>
                 <span className="flex flex-row gap-2 items-center">
                     Total:
-                    <Snippet
-                        variant="flat"
+                    <TimeDisplay
+                        seconds={currentTotal}
                         color="primary"
                         size="md"
-                        tooltipProps={{ content: "Copy as hours", offset: 8 }}
                         className="pl-3 py-0 font-normal rounded-full"
                         classNames={{
                             pre: "font-sans",
                         }}
-                        codeString={secondsToHours(timeTracker.totalSeconds).toFixed(2)}
-                        hideSymbol>
-                        {hhMMSS(currentTotal)}
-                    </Snippet>
+                    />
                 </span>
             </CardFooter>
         </Card>
