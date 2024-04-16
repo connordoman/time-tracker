@@ -2,7 +2,6 @@ import { Tooltip, type ButtonProps } from "@nextui-org/react";
 import { PiFloppyDiskLight, PiPlusBold } from "react-icons/pi";
 import RoundButton from "./RoundButton";
 import { RxDownload, RxShare2 } from "react-icons/rx";
-import { RiSave3Fill, RiSave3Line } from "react-icons/ri";
 import { forwardRef } from "react";
 
 interface TouchButtonProps {
@@ -18,7 +17,7 @@ const TouchButton = forwardRef<HTMLButtonElement, TouchButtonProps>(
                 ref={ref}
                 color={color}
                 onPress={onPress}
-                className="w-24 h-24 md:h-14 md:w-14 text-5xl md:text-2xl">
+                className="w-20 h-20 md:h-14 md:w-14 text-5xl md:text-2xl">
                 {children}
             </RoundButton>
         );
@@ -41,7 +40,7 @@ export default function TimesheetActionButtons({
     onDownload,
 }: TimesheetActionButtonsProps) {
     return (
-        <div className="py-[5vh] h-auto fixed bottom-0 right-terminal-align z-30 flex flex-row-reverse gap-4 items-center justify-end">
+        <div className="h-auto fixed bottom-[7.5vh] right-terminal-align z-30 flex flex-row-reverse gap-4 items-center justify-end">
             <Tooltip content="Add new punch">
                 <TouchButton color="primary" onPress={onAdd}>
                     <PiPlusBold className="" />

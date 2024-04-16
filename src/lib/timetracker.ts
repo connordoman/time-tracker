@@ -202,6 +202,12 @@ export default class TimeTracker implements Timesheet {
         return Math.round(seconds / this._settings.roundToSeconds) * this._settings.roundToSeconds;
     }
 
+    public static defaultTimeTracker(settings: TimesheetSettings = defaultSettings) {
+        const timeTracker = new TimeTracker(settings);
+        timeTracker.addPunchCard("Work period", "Add custom notes to remember what you were working on.");
+        return timeTracker;
+    }
+
     public static demoTimeTracker() {
         const timeTracker = new TimeTracker();
 
@@ -283,7 +289,7 @@ export function readFromLocalStorage(key: string = "time-tracker"): TimeTracker 
         const timesheetJSON = window.localStorage.getItem(key);
 
         if (!timesheetJSON) {
-            return new TimeTracker();
+            return TimeTracker.defaultTimeTracker();
         }
 
         const timesheet: Timesheet = JSON.parse(timesheetJSON);
@@ -294,7 +300,7 @@ export function readFromLocalStorage(key: string = "time-tracker"): TimeTracker 
     } else {
         console.log("Window is not defined: skipping read from localStorage.");
     }
-    return new TimeTracker();
+    return TimeTracker.defaultTimeTracker();
 }
 
 export function getTimeTrackerFromLocalStorage(): TimeTracker {
