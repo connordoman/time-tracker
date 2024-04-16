@@ -57,7 +57,9 @@ export default function PunchCard({ cardIndex, timeTracker, cardId, onPunchDelet
 
     useEffect(() => {
         const unfinishedLastWorkPeriod =
-            (punchCard?.workPeriods[punchCard.workPeriods.length - 1].endTimeSeconds ?? 1) === 0;
+            (punchCard && punchCard.workPeriods.length >> 0
+                ? punchCard.workPeriods[punchCard.workPeriods.length - 1].endTimeSeconds
+                : 1) === 0;
         if (unfinishedLastWorkPeriod) {
             setPlaying(true);
         }
