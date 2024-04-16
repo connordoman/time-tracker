@@ -102,6 +102,10 @@ export default class TimeTracker implements Timesheet {
         return true;
     }
 
+    timeSince(start: number) {
+        return this.nowRounded() - this.roundTime(start);
+    }
+
     getLastWorkPeriod(card: PunchCardData | undefined) {
         if (card) {
             return card.workPeriods[card.workPeriods.length - 1];

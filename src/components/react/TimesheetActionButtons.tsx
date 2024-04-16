@@ -40,7 +40,7 @@ export default function TimesheetActionButtons({
     onDownload,
 }: TimesheetActionButtonsProps) {
     return (
-        <div className="h-auto fixed bottom-[7.5vh] right-terminal-align z-30 flex flex-row-reverse gap-4 items-center justify-end">
+        <div className="h-auto fixed bottom-4 right-terminal-align z-30 flex flex-row-reverse gap-4 items-center justify-end">
             <Tooltip content="Add new punch">
                 <TouchButton color="primary" onPress={onAdd}>
                     <PiPlusBold className="" />

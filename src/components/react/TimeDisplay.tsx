@@ -37,6 +37,7 @@ function TimeDisplay({ seconds, ...props }: TimeDisplayProps) {
             window.removeEventListener("keyup", handleKeyUp);
         };
     });
+
     return (
         <Snippet
             codeString={altPressed ? hours : timeString}

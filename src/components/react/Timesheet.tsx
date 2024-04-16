@@ -103,7 +103,7 @@ export default function Timesheet({}: TimesheetProps) {
                 )}
             </main>
             <footer className="w-full px-8 py-4 h-48">
-                <div className="mx-terminal-align flex flex-row items-center gap-4">
+                <div className="mx-terminal-align flex flex-row items-center gap-4 flex-wrap">
                     <p className="text-sm">
                         <Kbd keys={["option"]}>&nbsp;+&nbsp;Click</Kbd> some buttons for other choices.
                     </p>
