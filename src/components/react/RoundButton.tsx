@@ -4,11 +4,14 @@ import { PiPlusBold } from "react-icons/pi";
 function RoundButton(props: ButtonProps) {
     return (
         <Button
+            {...props}
             ref={props.ref}
-            color="primary"
+            color={props.color}
             variant="flat"
-            className="px-0 min-w-fit w-12 h-12 rounded-full drop-shadow-xl backdrop-blur-md backdrop-brightness-150"
-            {...props}>
+            className={
+                "rounded-full px-0 min-w-fit w-12 h-12 shadow-medium backdrop-blur-md backdrop-brightness-150 " +
+                props.className
+            }>
             {props.children}
         </Button>
     );

@@ -14,7 +14,7 @@ import {
     useDisclosure,
     Tooltip,
 } from "@nextui-org/react";
-import TimeTracker, { hhMMSS, sumWorkPeriods } from "../../lib/timetracker";
+import TimeTracker, { hhMMSS, secondsToHours, sumWorkPeriods } from "../../lib/timetracker";
 import { RiPlayFill, RiStopFill } from "react-icons/ri";
 import { useTimer } from "src/hooks/time";
 import PunchCardNotesModal from "./PunchCardNotesModal";
@@ -22,6 +22,7 @@ import Blockquote from "./Blockquote";
 import PunchCardTimetable from "./PunchCardTimetable";
 import { FaTimes } from "react-icons/fa";
 import type { PunchCardData } from "@lib/time";
+import TimeDisplay from "./TimeDisplay";
 
 export const prerender = false;
 
@@ -130,7 +131,7 @@ export default function PunchCard({ cardIndex, timeTracker, cardId, onPunchDelet
                     labelPlacement="outside"
                     startContent={
                         <div className="pointer-events-none flex items-center">
-                            <span className="text-default-400 text-small">Memo:</span>
+                            <span className="text-default-400 text-base">Memo:</span>
                         </div>
                     }
                     value={currentMemo}
@@ -139,7 +140,7 @@ export default function PunchCard({ cardIndex, timeTracker, cardId, onPunchDelet
                 <div className="w-full flex flex-row gap-2">
                     <Accordion
                         variant="shadow"
-                        className="border-none rounded-xl p-0 flex flex-col gap-1 w-full"
+                        className="border-none rounded-xl p-0 flex flex-col gap-1 w-full  shadow-none"
                         itemClasses={itemClasses}
                         isCompact>
                         <AccordionItem
@@ -202,18 +203,15 @@ export default function PunchCard({ cardIndex, timeTracker, cardId, onPunchDelet
                 </ButtonGroup>
                 <span className="flex flex-row gap-2 items-center">
                     Total:
-                    <Snippet
-                        variant="flat"
+                    <TimeDisplay
+                        seconds={currentTotal}
                         color="primary"
                         size="md"
-                        tooltipProps={{ content: "Copy total time", offset: 8 }}
                         className="pl-3 py-0 font-normal rounded-full"
                         classNames={{
                             pre: "font-sans",
                         }}
-                        hideSymbol>
-                        {hhMMSS(currentTotal)}
-                    </Snippet>
+                    />
                 </span>
             </CardFooter>
         </Card>

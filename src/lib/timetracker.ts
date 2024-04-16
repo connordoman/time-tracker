@@ -140,6 +140,11 @@ export default class TimeTracker implements Timesheet {
         return this.getPunchCard(uuid)?.workPeriods.length ?? 0;
     }
 
+    pushDefaultPunchCard(): TimeTracker {
+        this.addPunchCard("", "");
+        return this;
+    }
+
     getPunchCards() {
         return this._punchCards;
     }
@@ -182,6 +187,16 @@ export default class TimeTracker implements Timesheet {
         return this._punchCards;
     }
 
+    get totalSeconds() {
+        return this.punchCards
+            .map((card) => {
+                return totalDuration(card);
+            })
+            .reduce((acc, next) => {
+                return acc + next;
+            }, 0);
+    }
+
     private nowRounded() {
         return this.roundTime(Date.now() / 1000);
     }
@@ -190,6 +205,11 @@ export default class TimeTracker implements Timesheet {
         if (this._settings.roundToSeconds === 0) return Math.round(seconds);
 
         return Math.round(seconds / this._settings.roundToSeconds) * this._settings.roundToSeconds;
+    }
+
+    public static defaultTimeTracker(settings: TimesheetSettings = defaultSettings) {
+        const timeTracker = new TimeTracker(settings);
+        return timeTracker.pushDefaultPunchCard();
     }
 
     public static demoTimeTracker() {
@@ -273,7 +293,7 @@ export function readFromLocalStorage(key: string = "time-tracker"): TimeTracker 
         const timesheetJSON = window.localStorage.getItem(key);
 
         if (!timesheetJSON) {
-            return new TimeTracker();
+            return TimeTracker.defaultTimeTracker();
         }
 
         const timesheet: Timesheet = JSON.parse(timesheetJSON);
@@ -284,7 +304,7 @@ export function readFromLocalStorage(key: string = "time-tracker"): TimeTracker 
     } else {
         console.log("Window is not defined: skipping read from localStorage.");
     }
-    return new TimeTracker();
+    return TimeTracker.defaultTimeTracker();
 }
 
 export function getTimeTrackerFromLocalStorage(): TimeTracker {
@@ -310,4 +330,8 @@ export function saveTimesheetToLocalStorage(timesheet: Timesheet, key: string = 
 
 export function saveTimeTrackerToLocalStorage(timeTracker: TimeTracker, key: string = "time-tracker") {
     saveToLocalStorage(timeTracker.toJSON(), key);
+}
+
+export function secondsToHours(seconds: number): number {
+    return seconds / 3600;
 }
