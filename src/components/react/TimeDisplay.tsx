@@ -41,11 +41,11 @@ function TimeDisplay({ seconds, ...props }: TimeDisplayProps) {
         <Snippet
             codeString={altPressed ? hours : timeString}
             color={props.color ?? "primary"}
-            className="font-sans rounded-full"
-            classNames={{ pre: "font-sans font-semibold text-lg pl-1" }}
+            className={"font-sans rounded-full " + props.className}
+            classNames={{ pre: "font-sans font-semibold text-lg pl-1 " + props.classNames?.pre }}
             tooltipProps={{
                 content: altPressed ? `Copy as hours: ${hours}h` : `Copy as time: ${timeString}`,
-                className: "text-white dark:text-zinc-100 dark:bg-green-700",
+                className: "text-white backdrop-brightness-50 bg-content/50",
             }}
             hideSymbol
             {...props}>
