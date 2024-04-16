@@ -10,18 +10,15 @@ import {
     Divider,
     Accordion,
     AccordionItem,
-    Snippet,
-    useDisclosure,
     Tooltip,
 } from "@nextui-org/react";
-import TimeTracker, { hhMMSS, secondsToHours, sumWorkPeriods } from "../../lib/timetracker";
+import TimeTracker, { sumWorkPeriods } from "../../lib/timetracker";
 import { RiPlayFill, RiStopFill } from "react-icons/ri";
 import { useTimer } from "src/hooks/time";
 import PunchCardNotesModal from "./PunchCardNotesModal";
 import Blockquote from "./Blockquote";
 import PunchCardTimetable from "./PunchCardTimetable";
 import { FaTimes } from "react-icons/fa";
-import type { PunchCardData } from "@lib/time";
 import TimeDisplay from "./TimeDisplay";
 
 export const prerender = false;
@@ -49,11 +46,22 @@ export default function PunchCard({ cardIndex, timeTracker, cardId, onPunchDelet
     const [currentNotes, setNotes] = useState(punchCard?.notes ?? "");
     const [currentTotal, setCurrentTotal] = useState(sumWorkPeriods(workPeriods));
     const [initializing, setInitializing] = useState(true);
+    const [currentStartTime, setCurrentStartTime] = useState(
+        workPeriods[workPeriods.length - 1]?.startTimeSeconds ?? Date.now() / 1000
+    );
 
-    const { seconds, isLoading, isPlaying, setPlaying, resetTime } = useTimer({
-        startTimeSeconds: 0,
+    const { seconds, isPlaying, setPlaying, resetTime } = useTimer({
+        startTimeSeconds: timeTracker.timeSince(currentStartTime),
         use24Hour: true,
     });
+
+    useEffect(() => {
+        const unfinishedLastWorkPeriod =
+            (punchCard?.workPeriods[punchCard.workPeriods.length - 1].endTimeSeconds ?? 1) === 0;
+        if (unfinishedLastWorkPeriod) {
+            setPlaying(true);
+        }
+    }, []);
 
     useEffect(() => {
         if (!isPlaying) {
@@ -134,6 +142,7 @@ export default function PunchCard({ cardIndex, timeTracker, cardId, onPunchDelet
                             <span className="text-default-400 text-base">Memo:</span>
                         </div>
                     }
+                    size="md"
                     value={currentMemo}
                     onValueChange={handleMemoUpdate}
                 />
@@ -149,7 +158,7 @@ export default function PunchCard({ cardIndex, timeTracker, cardId, onPunchDelet
                             className="px-0"
                             startContent={
                                 <div className="pointer-events-none flex items-center gap-2 text-sm">
-                                    <span className="text-default-400 text-small">Notes:</span>
+                                    <span className="text-default-400 text-base">Notes:</span>
                                     <em>{abbreviatedNotes}</em>
                                 </div>
                             }
